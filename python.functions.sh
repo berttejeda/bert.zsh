@@ -66,6 +66,38 @@ conda.env.create(){
 
 }
 
+conda.env.remove(){
+  BINARY=conda
+  if ! [[ ($(type /usr/{,local/}{,s}bin/${BINARY} 2> /dev/null)) || ($(which $BINARY)) ]];then
+    echo "This function requires $BINARY, see installation instructions: https://www.continuum.io/downloads"
+    return 1
+  fi
+
+  local USAGE="""Usage: ${FUNCNAME[0]} 
+  --environment-name|-n <virtualenv_name> 
+  """
+
+  # args
+  local num_args=$#
+  local allargs=$*
+  local python_version_default=3.7
+
+  while (( "$#" )); do
+    if [[ "$1" =~ "^--environment-name$|^-n$" ]]; then local environment_name="${2}";shift;fi
+    if [[ "$1" =~ "^--help$|^-h$" ]]; then local help=true;fi
+    shift
+  done
+  
+  # Display help if applicable
+  if [[ (-n $help) || (-z $environment_name) ]];then 
+    echo -e "${USAGE}"
+    return
+  fi
+
+  conda env remove --name "${environment_name}"
+
+}
+
 conda.env.list(){
   BINARY=conda
   if ! [[ ($(type /usr/{,local/}{,s}bin/${BINARY} 2> /dev/null)) || ($(which $BINARY)) ]];then
