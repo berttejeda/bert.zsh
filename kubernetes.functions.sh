@@ -35,7 +35,7 @@ kubectl.proxy.start() {
 	usage="""Usage: 
 	${FUNCNAME[0]} --context"""	
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--context.*" ) || ( "$1" == -x ) ]]; then context=$2;fi    
 	    shift
 	done
@@ -51,7 +51,7 @@ kubectl.secrets.decode(){
 	usage="""Usage: 
 	${FUNCNAME[0]} --context/-c [context_name] --namespace/-n [namespace_name] --secret/-s [secret_name]"""	
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--namespace.*" ) || ( "$1" == -n ) ]]; then namespace="--namespace ${2}";fi	    	
 	    if [[ ( "$1" =~ ".*--context.*" ) || ( "$1" == -x ) ]]; then context="--context ${2}";fi
 	    if [[ ( "$1" =~ ".*--secret.*" ) || ( "$1" == -s ) ]]; then secret="${2}";fi
@@ -65,7 +65,7 @@ kubectl.tls.export(){
 	usage="""Usage: 
 	${FUNCNAME[0]} --context [context_name] --namespace [namespace_name] --secret [secret_name]"""	
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--namespace.*") || ( "$1" == -n ) ]]; then namespace="--namespace ${2}";fi	    	
 	    if [[ ( "$1" =~ ".*--context.*") || ( "$1" == -x ) ]]; then context="--context ${2}";fi
 	    if [[ ( "$1" =~ ".*--secret.*") || ( "$1" == -x ) ]]; then secret="${2}";fi
@@ -117,7 +117,7 @@ kubectl.pods.restart(){
 	usage="""Usage: 
 	${FUNCNAME[0]} --context/-x [context_name] --namespace/-n [namespace_name] --deployment/-d [deployment_name] --rc [replication_controller_name]"""	
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--context.*") || ( "$1" == -x ) ]]; then local context="--context ${2}";fi
 	    if [[ ( "$1" =~ ".*--namespace.*") || ( "$1" == -n ) ]]; then local namespace="--namespace ${2}";fi	    	
 	    if [[ ( "$1" =~ ".*--pod.*") || ( "$1" == -p ) ]]; then local pod_name="${2}";fi
@@ -140,7 +140,7 @@ kubectl.run.curl(){
 	usage="""Usage: 
 	${FUNCNAME[0]} --context [context_name] --namespace [namespace_name] --curl [url] --command [command]"""
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--context.*") || ( "$1" == -x ) ]]; then local context="--context ${2}";fi
 	    if [[ ( "$1" =~ ".*--namespace.*") || ( "$1" == -n ) ]]; then local namespace="--namespace ${2}";fi	    	
 	    if [[ ( "$1" =~ ".*--curl.*") || ( "$1" == -u ) ]]; then local shell_exec="sh -c 'curl ${2}'";fi
@@ -162,7 +162,7 @@ kubectl.logs(){
 	usage="""Usage: 
 	${FUNCNAME[0]} --namespace [namespace_name] --label [label_name]"""	
 	if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--namespace.*" ]]; then NAMESPACE=$2;fi    
 	    if [[ "$1" =~ ".*--label.*" ]]; then LABEL=$2;fi    
 	    if [[ "$1" =~ ".*--container.*" ]]; then CONTAINER=$2;fi    
@@ -200,7 +200,7 @@ function kind.cluster.init(){
   local k8s_control_plane_port_random=$[$[RANDOM%9000]+30000]
   local k8s_worker_port_random=$[$[RANDOM%9000]+31000]
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--cluster-name$|^-n$" ]]; then local k8s_cluster_name="${2}";shift;fi
     if [[ "$1" =~ "^--control-plane-port$|^-cp$" ]]; then local k8s_control_plane_port="${2}";shift;fi
     if [[ "$1" =~ "^--worker-port$|^-cp$" ]]; then local k8s_worker_port="${2}";shift;fi

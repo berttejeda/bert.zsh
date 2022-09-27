@@ -13,7 +13,7 @@ function aws.profile.login(){
     --help
   """
 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ "^-p$" ]]; then aws_profile_name=$2;fi    
       if [[ "$1" =~ "^--help$" ]]; then help=true;fi    
       shift
@@ -51,7 +51,7 @@ function aws.secrets.create(){
     --help
   """
 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ "^-n$" ]]; then secret_name=$2;fi    
       if [[ "$1" =~ "^-d$" ]]; then secret_description=$2;fi    
       if [[ "$1" =~ "^-s$" ]]; then secret_string=$2;fi    
@@ -90,7 +90,7 @@ function aws.ec2.clone {
     --help
   """
 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ "^-i$" ]]; then awsinstanceid=$2;fi    
       if [[ "$1" =~ "^-r$" ]]; then region=$2;fi    
       if [[ "$1" =~ "^--help$" ]]; then help=true;fi    

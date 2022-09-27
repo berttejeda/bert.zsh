@@ -117,7 +117,7 @@ os.sleep() {
 	usage="""Usage: 
 	${FUNCNAME[0]} --password <password>"""
 	if [[ "$*" =~ ".*--help.*" ]];then echo -e "${usage}";return 0;fi
-	while (( "$#" )); do
+	while (( $# )); do
 	if [[ "$1" =~ ".*--password.*" ]]; then _password_=$2;fi    
 	shift
 	done	

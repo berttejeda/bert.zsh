@@ -107,7 +107,7 @@ file.convert(){
     echo "Usage: ${FUNCNAME[0]} --file [/some/file] --format [gde]";return 1
   fi
   SHELL="/bin/sh"
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--image_id.*" ]]; then local IMAGE_ID=$2;fi
       if [[ "$1" =~ ".*--shell.*" ]]; then local SHELL=${2};fi
       if [[ "$1" =~ ".*--dry.*" ]]; then local DRY_RUN="true";fi
@@ -121,7 +121,7 @@ file.base64.encode(){
   ${FUNCNAME[0]} --file [file] [--no-line-wrap]"""
   if [[ ($# -lt 2) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
   linewrap="true"
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ ( "$1" =~ ".*--file.*" ) || ( "$1" == -f ) ]]; then f=$2;fi    
       if [[ ( "$1" =~ ".*--no-line-wrap.*" ) || ( "$1" == -w ) ]]; then linewrap="";fi    
       shift
@@ -230,7 +230,7 @@ files.to.workspace() {
     echo "Usage: ${FUNCNAME[0]} --destination [/some/path] [--dry]";return 1
   fi  
   workspace_folder="$HOME/Documents/workspace"
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--destination.*" ]]; then local workspace_folder=$2;fi    
       if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
       shift
@@ -290,7 +290,7 @@ function tree() {
   num_args=$#
   allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--max-depth$|^-d$" ]]; then max_depth="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
     shift
@@ -311,7 +311,7 @@ mount.smb(){
   usage="Usage: ${FUNCNAME[0]} --config {{CONFIG_FILE}} [--root {{MOUNT_ROOT_PATH}}] [--dry]"
   PREFIX="" 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--config.*" ]]; then local CONFIG_FILE=${2};fi    
       if [[ "$1" =~ ".*--root.*" ]]; then local MOUNT_ROOT=$2;else local MOUNT_ROOT="${HOME}/mounts";fi    
       if [[ "$1" =~ ".*--host.*" ]]; then local smb_host=${2};fi    
@@ -376,7 +376,7 @@ cwrsync.sync(){
   PREFIX=""
 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
-    while (( "$#" )); do
+    while (( $# )); do
       if [[ "$1" =~ ".*--exclude.*" ]]; then local exl=$2;fi    
       if [[ "$*" =~ ".*--source.*" ]]; then local src=$2;fi    
       if [[ "$*" =~ ".*--port.*" ]]; then local port=$2;fi    
@@ -424,7 +424,7 @@ files.sync(){
   	fi
   fi
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
-    while (( "$#" )); do
+    while (( $# )); do
       if [[ "$1" =~ ".*--exclude.*" ]]; then local exl=$2;fi    
       if [[ "$*" =~ ".*--source.*" ]]; then local src=$2;fi    
       if [[ "$*" =~ ".*--destination.*" ]]; then local dst=$2;fi    
@@ -496,7 +496,7 @@ verify_or_create_checksum() {
 back.this.dir.up(){
   usage="Usage: ${FUNCNAME[0]} --host <remote_host> --source_dir <path> --remote_dir <path>"
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
-    while (( "$#" )); do
+    while (( $# )); do
       if [[ "$1" =~ ".*--host.*" ]]; then local remote_host=$2;fi    
       if [[ "$*" =~ ".*--remote_dir.*" ]]; then local remote_dir=$2;fi    
       if [[ "$*" =~ ".*--source_dir.*" ]]; then local source_dir=$2;fi
@@ -558,7 +558,7 @@ bytes.tohuman(){
     return 1  
   fi
   local PREFIX="" 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--bytes.*" ]]; then local BYTES=$2;fi    
       if [[ "$1" =~ ".*--dry.*" ]]; then local DRY_RUN="true";local PREFIX=echo;fi
       shift
@@ -573,7 +573,7 @@ locate32.find.dupes(){
     return 1  
   fi
   local PREFIX="" 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--path.*" ]]; then local path_spec=$2;fi    
       if [[ "$1" =~ ".*--name.*" ]]; then local filename=$2;fi    
       if [[ "$1" =~ ".*--type.*" ]]; then local file_type=$2;fi
@@ -613,7 +613,7 @@ files.batch() {
     --help
   """
 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ "^--path$|^-p$" ]]; then local DIR=$2;fi    
       if [[ "$1" =~ "^--batch-size$|^-b$" ]]; then local BATCH_SIZE=$2;fi    
       if [[ "$1" =~ "^--subfolder-name$|^-n$" ]]; then local SUBFOLDER_NAME=$2;fi 

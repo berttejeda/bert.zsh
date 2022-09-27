@@ -32,7 +32,7 @@ domain.get-commonname() {
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi 
   PREFIX=""
   PORT="443"
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--url.*" ]]; then URL=$2;fi    
       if [[ "$1" =~ ".*--port.*" ]]; then PORT=$2;fi    
       if [[ "$1" =~ ".*--dry.*" ]]; then PREFIX="echo";fi
@@ -50,7 +50,7 @@ domain.get-cert() {
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi 
   PREFIX=""
   PORT="443"
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--url.*" ]]; then URL=$2;fi    
       if [[ "$1" =~ ".*--port.*" ]]; then PORT=$2;fi    
       if [[ "$1" =~ ".*--dry.*" ]]; then PREFIX="echo";fi

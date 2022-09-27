@@ -80,7 +80,7 @@ function mail.export.to.files {
   account=Exchange
   mailbox=inbox
   destination="Macintosh HD:Users:${USER}:Documents:"
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ ".*--account.*" ]]; then account=$2;fi    
     if [[ "$1" =~ ".*--destination.*" ]]; then destination=$2;fi
     if [[ "$1" =~ ".*--mailbox.*" ]]; then mailbox=$2;fi

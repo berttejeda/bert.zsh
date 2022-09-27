@@ -49,7 +49,7 @@ conda.env.create(){
   local allargs=$*
   local python_version_default=3.7
 
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--environment-name$|^-n$" ]]; then local environment_name="${2}";shift;fi
     if [[ "$1" =~ "^--python-version$|^-v$" ]]; then local python_version="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then local help=true;fi
@@ -82,7 +82,7 @@ conda.env.remove(){
   local allargs=$*
   local python_version_default=3.7
 
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--environment-name$|^-n$" ]]; then local environment_name="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then local help=true;fi
     shift

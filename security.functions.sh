@@ -91,7 +91,7 @@ ssh.audit.logins(){
 	fi
 	PREFIX=""
 	results=10
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--host.*" ]]; then local HOST_NAME=$2;fi    
 	    if [[ "$1" =~ ".*--results.*" ]]; then local results=$2;fi    
 	    if [[ "$1" =~ ".*--current.*" ]]; then local CURRENT="true";fi    

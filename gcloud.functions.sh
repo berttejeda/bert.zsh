@@ -54,7 +54,7 @@ gcloud.sql.add-ip(){
 	if [[ ($# -lt 2) ]]; then 
 		echo "Usage: ${FUNCNAME[0]} --project [project id] --instance [instance name]";return 1
 	fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--project.*" ]]; then PROJECT_ID=$2;fi    
 	    if [[ "$1" =~ ".*--instance.*" ]]; then INSTANCE_NAME=$2;fi
 	    if [[ "$1" =~ ".*--address.*" ]]; then CIDR_ADDRESS=$2;fi
@@ -109,7 +109,7 @@ gcloud.container.images.delete() {
 	if [[ ($# -lt 2) ]]; then 
 		echo "Usage: ${FUNCNAME[0]} --older-than [YYYY-MM-DD]";return 1
 	fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--image.*" ]]; then IMAGE=$2;fi    
 	    if [[ "$1" =~ ".*--older-than.*" ]]; then OLDER_THAN=$2;fi
 	    if [[ "$1" =~ ".*--dry.*" ]]; then DRY_RUN="true";fi
@@ -143,7 +143,7 @@ gcloud.cloudsql.start_proxy() {
 		fi
 		return 1
 	fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--project.*" ) || ( "$1" == -p ) ]]; then PROJECT_ID=$2;fi    
 	    if [[ ( "$1" =~ ".*--config.*" ) || ( "$1" == -c ) ]]; then CONFIG=$2;fi
 	    if [[ ( "$1" =~ ".*--config_db_sections.*" ) || ( "$1" == -s ) ]]; then CONFIG_DB_SECTIONS=$2;fi
@@ -160,7 +160,7 @@ gcloud.cloudsql.run_script() {
 	if [[ ($# -lt 2) ]]; then 
 		echo "Usage: ${FUNCNAME[0]} --project [project_id] --config [config]";return 1
 	fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--project.*" ) || ( "$1" == -p ) ]]; then PROJECT_ID=$2;fi    
 	    if [[ ( "$1" =~ ".*--config.*" ) || ( "$1" == -c ) ]]; then CONFIG=$2;fi
 	    if [[ ( "$1" =~ ".*--user.*" ) || ( "$1" == -u ) ]]; then MYSQL_USER=$2;fi
@@ -198,7 +198,7 @@ gcloud.cloudsql.backup_db() {
 		"""
 		return 0
 	fi	
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ ( "$1" =~ ".*--project.*" ) || ( "$1" == -j ) ]]; then PROJECT_ID=$2;fi    
 	    if [[ ( "$1" =~ ".*--config.*" ) || ( "$1" == -c ) ]]; then CONFIG=$2;fi
 	    if [[ ( "$1" =~ ".*--credential_file.*" ) || ( "$1" == -j ) ]]; then CREDENTIAL_FILE=$2;fi

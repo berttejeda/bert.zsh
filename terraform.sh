@@ -95,7 +95,7 @@ function tf.plan.nocolor {
   local num_args=$#
   local allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--plan-name-prefix$|^-pp$" ]]; then local plan_prefix="-${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then local help=true;fi
     shift
@@ -137,7 +137,7 @@ function tf.plan.nocolor {
 #   allargs=$*
 #   plan_prefix=
 #   
-#   while (( "$#" )); do
+#   while (( $# )); do
 #     if [[ "$1" =~ "^--vars-file$|^-f$" ]]; then vars_file="${2}";shift;fi
 #     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
 #     shift

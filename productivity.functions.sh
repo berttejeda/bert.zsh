@@ -14,7 +14,7 @@ function remind.me {
   "
   [ $# -lt 1 ] && echo -e "${usage}" >&2 && return 1
   list="Reminders"
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ ".*--list.*" ]]; then 
       list=$2;
     else 

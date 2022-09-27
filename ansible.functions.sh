@@ -3,7 +3,7 @@ ansible.roles.create(){
         echo "Usage: ${FUNCNAME[0]} --role-name [ROLE_NAME]";return 1
     fi  
     PREFIX=""
-    while (( "$#" )); do
+    while (( $# )); do
         if [[ "$1" =~ ".*--role-name.*" ]]; then local ROLE_NAME=$2;fi    
         if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
         shift

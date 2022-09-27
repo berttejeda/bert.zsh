@@ -158,7 +158,7 @@ indent() {
 
 create_params(){
   echo -e '''
-  while (( "$#" )); do
+  while (( $# )); do
       for param in "${!params[@]}";do
           if [[ "$1" =~ "$param" ]]; then
               var=${param//-/_};

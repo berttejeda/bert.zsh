@@ -12,7 +12,7 @@ function bert.zsh.install() {
 
   BERT_ZSH_GIT_URL="https://github.com/berttejeda/bert.zsh.git"
 
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ $1 =~ "'--bert-bash-git-url|^-g$'" ]]; then BERT_ZSH_GIT_URL=$2;fi    
       if [[ $1 =~ "'--bert-bash-home|^-b$'" ]]; then BERT_ZSH_HOME=$2;fi    
       if [[ $1 =~ "'^--update$'" ]]; then BERT_ZSH_UPDATE=true;shift;fi

@@ -2,7 +2,7 @@ logs.histogram(){
 	if [[ ($# -lt 2) ]]; then 
 		echo "Usage: ${FUNCNAME[0]} --input [/path/to/file]";return 1
 	fi
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--input.*" ]]; then local INPUT=$2;fi    
 	    shift
 	done

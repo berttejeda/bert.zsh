@@ -100,7 +100,7 @@ else:
 config.write()
 {
   if [ $# -lt 1 ]; then echo "Usage: ${FUNCNAME[0]} [config_file]"; return 0; fi
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ ".*--ini.*" ]]; then ini_file=$2;fi    
     if [[ "$1" =~ ".*--section.*" ]]; then section=$2;fi
     if [[ "$1" =~ ".*--values.*" ]]; then values=$2;fi
@@ -191,7 +191,7 @@ print(json.dumps(yaml_content))"
 }
 
 go.init() {
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ ".*--install.*" ]]; then local INSTALL="true";fi    
     if [[ "$1" =~ ".*--build-hello.*" ]]; then local BUILD_HELLO="true";fi    
     shift

@@ -24,7 +24,7 @@ git.configure.global.hooks.only_pr(){
   num_args=$#
   allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--branch-pattern$|^-p$" ]]; then branch_pattern="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
     shift
@@ -91,7 +91,7 @@ git.set.tracking(){
   num_args=$#
   allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--origin$|^-o$" ]]; then origin_name="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
     shift
@@ -127,7 +127,7 @@ git.branches.clean(){
   num_args=$#
   allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--older-than$|^-o$" ]]; then older_than="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
     shift
@@ -290,7 +290,7 @@ git.logs(){
 git.log.tree(){
   # See the history of the current branch laid out in a tree
   local all=""
-  while (( "$#" )); do
+  while (( $# )); do
       if [[ "$1" =~ ".*--all*" ]]; then local all="--all";fi
       shift
   done
@@ -321,7 +321,7 @@ git.search(){
   num_args=$#
   allargs=$*
   
-  while (( "$#" )); do
+  while (( $# )); do
     if [[ "$1" =~ "^--search-string$|^-s$" ]]; then search_string="${2}";shift;fi
     if [[ "$1" =~ "^--case-sensitive$|^-c$" ]]; then case_sensitive=true;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi

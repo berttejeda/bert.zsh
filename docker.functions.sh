@@ -29,7 +29,7 @@ docker.image.shell(){
 		echo "Usage: ${FUNCNAME[0]} --image_id [docker image id]";return 1
 	fi	
 	SHELL="/bin/sh"
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--image_id.*" ]]; then local IMAGE_ID=$2;fi    
 	    if [[ "$1" =~ ".*--shell.*" ]]; then local SHELL=${2};fi    
 	    if [[ "$1" =~ ".*--dry.*" ]]; then local DRY_RUN="true";fi
@@ -45,7 +45,7 @@ docker.pull_pack_push(){
 	fi
 	PREFIX=""	
 	TARGET_PATH="/home/${USERNAME}"
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--images.*" ]]; then local IMAGES=$2;fi    
 	    if [[ "$1" =~ ".*--host.*" ]]; then local TARGET_HOST=${2};fi    
 	    if [[ "$1" =~ ".*--path.*" ]]; then local TARGET_PATH=${2};fi    
@@ -79,7 +79,7 @@ docker.machine.prep.cisco_anyconnect(){
 	fi
 	PREFIX=""
 	HOST_DOCKER_DAEMON_PORT=2376
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--vm-name.*" ]]; then local DM_HOSTNAME=$2;fi    
 	    if [[ "$1" =~ ".*--ip-address.*" ]]; then local DM_IPADDRESS=${2};fi    
 	    if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
@@ -142,7 +142,7 @@ docker.host.switch(){
 	DM_PORT=2376
 	DM_CERT_TLS_VERIFY=1
 	DOCKER_MACHINE_NAME=docker
-	while (( "$#" )); do
+	while (( $# )); do
 	    if [[ "$1" =~ ".*--host.*" ]]; then local DM_HOSTNAME=$2;fi    
 	    if [[ "$1" =~ ".*--port.*" ]]; then local DM_PORT=${2};fi    
 	    if [[ "$1" =~ ".*--cert-path.*" ]]; then local DM_CERT_PATH=${2};fi    

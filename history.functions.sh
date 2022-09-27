@@ -24,7 +24,7 @@ history.servers.retrieve(){
         echo "Usage: ${FUNCNAME[0]} --server [HOST_NAME]";return 1
     fi  
     PREFIX=""
-    while (( "$#" )); do
+    while (( $# )); do
         if [[ "$1" =~ ".*--server.*" ]]; then local HOST_NAME=$2;fi    
         if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
         shift
