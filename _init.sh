@@ -156,7 +156,7 @@ indent() {
 #@ confirm
 
 
-create_params(){
+function create_params(){
   echo -e '''
   while (( $# )); do
       for param in "${!params[@]}";do
@@ -174,6 +174,16 @@ create_params(){
   shift;
   done
   '''
+}
+
+function show_help(){
+
+  local arg_pattern=$(whence -f $1 | egrep -i '(if \[\[ .\$arg)')
+  echo -e "${arg_pattern}" | while read arg;do
+    local pattern=$(cut -d@ -f1 <<< ${arg##*=~})
+    local help_txt=$(cut -d@ -f2 <<< ${arg##*=~})
+    echo $pattern ${help_txt//]/}
+  done
 }
 
 help(){
