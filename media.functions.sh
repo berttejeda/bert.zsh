@@ -86,6 +86,40 @@ video.convert()
   fi
 }
 
+video.to.images(){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--video-file$|^-f$|@The video file to process - required' ]]; then local video_file=$1;continue;fi
+    if [[ "$arg" =~ '^--output-dir$|^-d$|@Output directory, default is $video_file' ]]; then local output_dir=$1;continue;fi
+    if [[ "$arg" =~ '^--output-image-batch-size$|^-z$|@Batch size used when grouping images, default is 100' ]]; then local image_batch_size=$1;continue;fi
+    if [[ "$arg" =~ '^--clip-seek-time$|^-ss$|@Seeks to the timestamp specified in the video, default is 00:00:00' ]]; then local clip_seek_time=$1;continue;fi
+    if [[ "$arg" =~ '^--clip-duration$|^-t$|@Specify the duration of the clip, e.g. 00:00:05 for 5 seconds' ]]; then local clip_duration_arg="-t ${1}";continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done  
+  
+  local output_dir=${output_dir-${video_file%%.*}}
+
+  if ! [[ -d $output_dir ]];then 
+    $PREFIX mkdir ${output_dir}
+  fi
+
+
+  $PREFIX docker run --rm -v $PWD/:/workdir --workdir /workdir jrottenberg/ffmpeg \
+  -i ${video_file} -ss ${clip_seek_time-00:00:00} $clip_duration_arg \
+  "${output_dir}/img_%03d.jpg"
+
+  $PREFIX files.batch -p ${output_dir} -b ${image_batch_size-100} -n batch
+}
+
 mp4.compress()
 {
   [ $# -lt 1 ] && echo "Usage: ${FUNCNAME[0]} [input_file] [output_file]" && return 1
