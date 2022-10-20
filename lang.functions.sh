@@ -191,6 +191,10 @@ print(json.dumps(yaml_content))"
 }
 
 go.init() {
+  # TODO
+  # Update this to work with more modern versions of go
+  echo "This function is outdated, please fix me"
+  return
   while (( $# )); do
     if [[ "$1" =~ ".*--install.*" ]]; then local INSTALL="true";fi    
     if [[ "$1" =~ ".*--build-hello.*" ]]; then local BUILD_HELLO="true";fi    
