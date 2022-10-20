@@ -34,7 +34,6 @@ ${HOME}/.conda/envs/py3/Scripts
 $HOME/google-cloud-sdk/bin
 /c/Programdata/chocolatey/bin
 /usr/local/sbin
-/usr/local/bin
 /usr/local/opt/sqlite/bin
 /c/ProgramData/Anaconda3/envs/py3
 /c/ProgramData/Anaconda3/Scripts
@@ -61,4 +60,4 @@ $HOME/.jenv/bin
 """
 exclusions="/c/Program Files/Git/bin/git"
 NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep -v "${exclusions}" | sort -u | egrep '^/' | tr '\n' ':')
-export PATH=${NEW_PATH}
+export PATH=/usr/local/bin:${NEW_PATH}
