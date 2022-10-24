@@ -358,6 +358,13 @@ git.whatchanged(){
   git whatchanged --since="${1}" --pretty=oneline
 }
 
+git.branches.remote() {
+  # https://gist.github.com/jasonrudolph/1810768
+  for branch in `git branch -r | grep -v HEAD`;do 
+    echo -e `git show --format="%ci %cr" $branch | head -n 1` \\t$branch; 
+  done | sort -r
+}
+
 #--------------------------------------------------------------------------------------------------#
 # Git shortcuts
 alias git.undocommit='git reset --soft HEAD^'
@@ -375,7 +382,6 @@ alias git.b='git branch -rav'
 alias git.fmod='git status --porcelain -uno | cut -c4-' # Only the filenames of modified files
 alias git.today='git log --since="6am" --pretty=oneline'
 alias git.umod='git status --porcelain -u | cut -c4-' # Only the filenames of unversioned files
-alias git.branches='for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ai %ar by %an" $branch | head -n 1` \\t$branch; done | sort -r'
 alias gad='git add'
 alias gci='git commit -v'
 alias gst='git status'
