@@ -73,9 +73,30 @@ function aws.secrets.create(){
 }
 
 function aws.ec2.list(){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--ec2-name-pattern$|^-n$|@The naming pattern to use in your search - required' ]]; then local ec2_naming_pattern=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  if [[ -z $ec2_naming_pattern ]];then
+    show_help $funcstack[1]
+  fi
+
+  $PREFIX """
   aws ec2 describe-instances \
-  --query "Reservations[*].Instances[*].{PublicDNS:PublicDnsName,IP:PublicIpAddress,ID:InstanceId,Type:InstanceType,State:State.Name,Name:Tags[0].Value}" \
-  --output=table
+  --filters 'Name=tag:Name,Values=${ec2_naming_pattern}' \
+  --query 'Reservations[].Instances[].{ID:InstanceId, Name:Tags[?Key==\`Name\`].Value[] | [0],State:State.Name}' \
+  --output yaml | tee"""
 }
 
 function aws.ec2.clone {
