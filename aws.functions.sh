@@ -72,6 +72,33 @@ function aws.secrets.create(){
   --secret-string "${secret_string?'Must specify the value for the secret (-s)'}"
 }
 
+function aws.ec2.list.instances(){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--ec2-ebs-name-pattern$|^-n$|@The naming pattern to use in your search - required' ]]; then local ec2_ebs_vol_naming_pattern=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  if [[ -z $ec2_ebs_vol_naming_pattern ]];then
+    show_help $funcstack[1]
+  fi
+
+  $PREFIX """
+  aws ec2 describe-volumes --filters \
+  'Name=tag:Name,Values=${ec2_ebs_vol_naming_pattern}' \
+  --query 'Volumes[*].{Name:Tags[?Key==\`Name\`].Value[] | [0],VolumeId: VolumeId, AttachedInstanceId: Attachments[0].InstanceId, AvailabilityZone: AvailabilityZone, Size: Size}' \
+  --output yaml | tee"""
+}
+
 function aws.ec2.list(){
 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
