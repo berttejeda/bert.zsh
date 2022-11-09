@@ -285,24 +285,8 @@ ls.filter () {
 }
 
 function tree() {
-
-  # args
-  num_args=$#
-  allargs=$*
   
-  while (( $# )); do
-    if [[ "$1" =~ "^--max-depth$|^-d$" ]]; then max_depth="${2}";shift;fi
-    if [[ "$1" =~ "^--help$|^-h$" ]]; then help=true;fi
-    shift
-  done
-  
-  # Display help if applicable
-  if [[ (-n $help) || ($num_args -lt 1) ]];then 
-    return
-  fi
-
-  find . -maxdepth ${max_depth-10} ! -path './.git/*' -print |\
-  sed -e 's;[^/]*/;|____;g;s;____|; |;g'
+  find $1 ! -path './.git/*' -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 
 }
 
@@ -656,3 +640,4 @@ files.batch() {
     echo "Warning: Did not batch any files, as the number of files in the target are less than the batch size of ${BATCH_SIZE}"
   fi
 }
+
