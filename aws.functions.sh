@@ -72,7 +72,7 @@ function aws.secrets.create(){
   --secret-string "${secret_string?'Must specify the value for the secret (-s)'}"
 }
 
-function aws.ec2.list.instances(){
+function aws.ec2.list.volumes(){
 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
     show_help $funcstack[1]
