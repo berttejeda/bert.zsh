@@ -8,7 +8,7 @@ fi
 
 if [[ -n $os_is_windows ]];then
   if [[ -z $EDITOR_PATH ]];then
-    export EDITOR_PATH="C:\Program Files\Sublime Text 3\subl.exe"
+    export EDITOR_PATH="C:\Program Files\Sublime Text\subl.exe"
   fi
 else
   export EDITOR_PATH=${EDITOR_PATH-$(which subl)}
