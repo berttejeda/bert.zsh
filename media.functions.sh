@@ -251,6 +251,9 @@ if recursive:
 else:
     media_files = Path(source_media_path).glob(f'*.{media_file_extension}')
 for media_file in media_files:
+    if str(media_file.name).startswith('.'):
+        logger.warning(f'{media_file} is a hidden file, skipping')
+        continue
     if not media_file.is_file():
         logger.warning(f'{media_file} is not a file, skipping')
         continue
