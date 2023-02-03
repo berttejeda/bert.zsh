@@ -236,11 +236,10 @@ git.issue.branch.create (){
   if [[ $# -lt 3 ]];then show_help $funcstack[1];return;fi
   # DRY RUN LOGIC
   dtm=$(date +%Y%m%d/%H%M)
-  if [[ -z $branch_name ]];then
-    final_branch_name=${USERNAME-$USER}/$(git rev-parse --abbrev-ref HEAD)/${branch_type}/${dtm}/${change_context}
-  else
-    final_branch_name=${USERNAME-$USER}/${branch_name-$default_branch_name}/${branch_type}/${dtm}/${change_context}
-  fi
+  default_branch_name=$(git rev-parse --abbrev-ref HEAD)
+  branch_id=${USERNAME-$USER}
+  branch_id_name=${branch_id:l}
+  final_branch_name=${branch_id_name}/${branch_name-$default_branch_name}/${branch_type}/${dtm}/${change_context}
   $PREFIX git checkout -b ${final_branch_name}
 }
 
