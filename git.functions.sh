@@ -225,21 +225,23 @@ git.issue.branch.create (){
   for arg in "${@}";do
     shift
     if [[ "$arg" =~ '^--branch-name$|^-b$|@Name of the Git Branch - required' ]]; then local branch_name=$1;continue;fi
+    if [[ "$arg" =~ '^--branch-prefix$|^-p$|@Prefix to use for the git branch' ]]; then local branch_prefix=$1;continue;fi
     if [[ "$arg" =~ '^--branch-type$|^-t$|@Type of branch, e.g. feature, bugfix, hotfix - required' ]]; then local branch_type=$1;continue;fi
     if [[ "$arg" =~ '^--change-context$|^-c$|@Name of the change context, e.g. IAM - required' ]]; then local change_context=$1;continue;fi
     if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
     set -- "$@" "$arg"
   done
 
-
   # Display help if insufficient args
   if [[ $# -lt 3 ]];then show_help $funcstack[1];return;fi
   # DRY RUN LOGIC
   dtm=$(date +%Y%m%d/%H%M)
   default_branch_name=$(git rev-parse --abbrev-ref HEAD)
-  branch_id=${USERNAME-$USER}
-  branch_id_name=${branch_id:l}
-  final_branch_name=${branch_id_name}/${branch_name-$default_branch_name}/${branch_type}/${dtm}/${change_context}
+  if [[ -z $branch_prefix ]];then
+    branch_prefix=${USERNAME-$USER}
+  fi
+  final_branch_prefix=${branch_prefix:l}
+  final_branch_name=${final_branch_prefix}/${branch_name-$default_branch_name}/${branch_type}/${dtm}/${change_context}
   $PREFIX git checkout -b ${final_branch_name}
 }
 
