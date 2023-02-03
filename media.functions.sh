@@ -86,6 +86,34 @@ video.convert()
   fi
 }
 
+video.clip(){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--video-file$|^-f$|@The video file to process - required' ]]; then local video_file=$1;continue;fi
+    if [[ "$arg" =~ '^--clip-seek-time$|^-ss$|@Seeks to the timestamp specified in the video, default is 00:00:00' ]]; then local clip_seek_time=$1;continue;fi
+    if [[ "$arg" =~ '^--clip-duration$|^-t$|@Specify the duration of the clip, e.g. 00:00:05 for 5 seconds' ]]; then local clip_duration_arg="-t ${1}";continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  video_base_name="${video_file%%.*}"
+  video_ext="${video_file##*.}" 
+
+  $PREFIX docker run --rm -v $PWD/:/workdir --workdir /workdir jrottenberg/ffmpeg \
+  -i ${video_file} -acodec copy -vcodec copy -async 1 \
+  -ss ${clip_seek_time-00:00:00} ${clip_duration_arg} \
+  "${video_base_name}-clipped.${video_ext}"  
+  
+}
+
 video.to(){
 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
