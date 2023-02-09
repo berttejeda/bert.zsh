@@ -118,13 +118,15 @@ done
 conda.env.activate(){
   if [ $# -lt 1 ]; then echo "Usage: ${FUNCNAME[0]} <virtualenv_name>"; return 1; fi
   BINARY=conda
-  environment=$1
+  environment_name=$1
   if ! [[ ($(type /usr/{,local/}{,s}bin/${BINARY} 2> /dev/null)) || ($(which $BINARY)) ]];then
     echo "This function requires $BINARY, see installation instructions: https://www.continuum.io/downloads"
     return 1
   else
     if [[ $os_is_windows ]];then
-        source activate $environment
+        environment_path=$(conda info --envs | grep $environment_name | awk '{print $2}')        
+        environment_path_as_posix=$(cygpath -u $environment_path)
+        export PATH="${environment_path_as_posix}:${PATH}"
     elif [[ ($os_is_osx) || ($os_is_linux) ]];then
         source activate $environment
     fi    
