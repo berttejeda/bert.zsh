@@ -198,3 +198,8 @@ help(){
         fi
     done
 }
+
+function secret.set(){
+  echo -n 'Enter in value: '
+  eval "export $1=\$(read -s value;echo \$value)"
+}
