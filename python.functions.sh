@@ -124,9 +124,11 @@ conda.env.activate(){
     return 1
   else
     if [[ $os_is_windows ]];then
-        environment_path=$(conda info --envs | grep $environment_name | awk '{print $2}')        
-        environment_path_as_posix=$(cygpath -u $environment_path)
-        export PATH="${environment_path_as_posix}:${PATH}"
+        python_path=$(conda info --envs | grep $environment_name | awk '{print $2}')        
+        python_path_as_posix=$(cygpath -u $python_path)
+        python_scripts_path="${python_path}/Scripts"
+        python_scripts_path_as_posix=$(cygpath -u $python_scripts_path)
+        export PATH="${python_path_as_posix}:${python_scripts_path_as_posix}:${PATH}"
     elif [[ ($os_is_osx) || ($os_is_linux) ]];then
         source activate $environment
     fi    
