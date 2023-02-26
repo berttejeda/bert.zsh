@@ -1,3 +1,11 @@
+# pip install macdict
+# macdict · PyPI - https://pypi.org/project/macdict/
+BINARY=macdict-lookup
+if [[ ("$OSTYPE" =~ ".*darwin.*") && ($(type /usr/{,local/}{,s}bin/${BINARY} 2> /dev/null) || $(which $BINARY)) ]]; then
+  if type -p rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+  alias define="macdict-lookup"
+fi
+
 # java
 java.run(){ javac "${1}.java" && java "${1%.**}"; }
 
