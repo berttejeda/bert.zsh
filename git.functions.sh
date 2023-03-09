@@ -257,20 +257,28 @@ git.branch.status (){
   done
 }
 
-function git.release_notes ()
+function git.release_notes()
 {
-  declare -A params=(
-  ["--remote-name|-r$"]="[Name Of Your Remote Git Repo]"
-  ["--start-tag-or-commit|-s$"]="[Tag Name to Start From]"
-  ["--end-tag-or-commit|-e$"]="[Tag Name to End At]"
-  ["--dry"]="Dry Run"
-  )
-  # Display help if insufficient args
-  if [[ $# -lt 3 ]];then help ${FUNCNAME[0]} "${params}";return;fi
-  # Parse arguments
-  eval $(create_params)
-  # Display help if applicable
-  if [[ -n $help ]];then help ${FUNCNAME[0]} "${params}";return;fi
+
+  # defaults
+  local PREFIX=eval
+  local remote_name=origin
+  local end_tag_or_commit=$(git rev-parse --short HEAD)
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--start-tag-or-commit$|^-s$|@Tag Name to Start From - required' ]]; then local start_tag_or_commit=$1;continue;fi
+    if [[ "$arg" =~ '^--remote-name$|^-r$|@Name Of Your Remote Git Repo' ]]; then local remote_name=$1;continue;fi
+    if [[ "$arg" =~ '^--end-tag-or-commit$|^-e$|@Tag Name to End At' ]]; then local end_tag_or_commit=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+  
+  if [[ ($# -lt 1) || (-z $start_tag_or_commit) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
   # DRY RUN LOGIC
   git_branch=$(git rev-parse --abbrev-ref HEAD)
   repo_url=$(git config --get remote.${remote_name}.url | sed 's/\.git//' | sed 's/:\/\/.*@/:\/\//');
