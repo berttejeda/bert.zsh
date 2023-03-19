@@ -86,12 +86,13 @@ function confirm() {
 
   for arg in "${@}";do
     shift
+    if [[ "$arg" =~ '^--prompt$|^--p$|@The message to prompt with' ]]; then local msg=$1;continue;fi
     if [[ "$arg" =~ '^--graphical$|@Confirm via GUI - optional' ]]; then local via_gui=true;continue;fi
     if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
     if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
     set -- "$@" "$arg"
   done  
-  
+
   if [[ (-n $via_gui) && ("${os_is_osx}" == "true") ]];then  
     process='''
       on run argv
@@ -105,7 +106,7 @@ function confirm() {
       return 1
     fi
   else
-    local msg="${1:-Are you sure?} [y/N] "
+    local msg="${"${msg}":-Are you sure?} [y/N] "
     read "response?${msg}"
     case "$response" in
     [yY][eE][sS]|[yY]) (exit 0) ;;
