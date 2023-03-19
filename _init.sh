@@ -75,25 +75,41 @@ else
 fi
 
 function confirm() {
-  local response
-  if [[ ("$*" =~ ".*--graphical.*") && ("$OSTYPE" =~ .*darwin.*) ]];then  
-  process='''
-    on run argv
-      display dialog "Proceed?" buttons {"Yes", "No"}
-    end run  
-  '''
-  response=$(osascript - < <(echo -e "${process}"))
-  if echo "${response}" | grep -qE ".*[yY][eE][sS]|[yY].*"; then
-    return 0
-  else
-    return 1
+  
+  if [[ "$*" =~ ".*--help.*" ]];then 
+    show_help $funcstack[1]
+    return
   fi
+
+  local PREFIX=eval
+  local response
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--graphical$|@Confirm via GUI - optional' ]]; then local via_gui=true;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
+    set -- "$@" "$arg"
+  done  
+  
+  if [[ (-n $via_gui) && ("${os_is_osx}" == "true") ]];then  
+    process='''
+      on run argv
+        display dialog "Proceed?" buttons {"Yes", "No"}
+      end run  
+    '''
+    response=$(osascript - < <(echo -e "${process}"))
+    if echo "${response}" | grep -qE ".*[yY][eE][sS]|[yY].*"; then
+      return 0
+    else
+      return 1
+    fi
   else
-    local msg="${1:-Are you sure?} [y/N] "; shift
-    read -r $* -p "$msg" response || echo
+    local msg="${1:-Are you sure?} [y/N] "
+    read "response?${msg}"
     case "$response" in
-    [yY][eE][sS]|[yY]) return 0 ;;
-    *) return 1 ;;
+    [yY][eE][sS]|[yY]) (exit 0) ;;
+    *) (exit 1) ;;
     esac
   fi
 }
