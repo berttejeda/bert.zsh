@@ -86,7 +86,7 @@ function confirm() {
 
   for arg in "${@}";do
     shift
-    if [[ "$arg" =~ '^--prompt$|^--p$|@The message to prompt with' ]]; then local msg=$1;continue;fi
+    if [[ "$arg" =~ '^--prompt$|^-p$|@The message to prompt with' ]]; then local msg=$1;continue;fi
     if [[ "$arg" =~ '^--graphical$|@Confirm via GUI - optional' ]]; then local via_gui=true;continue;fi
     if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
     if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
