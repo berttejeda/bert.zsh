@@ -184,7 +184,7 @@ files.organize.a_z(){
     if test "${f}"; then 
       i=${f##*/}
       i=${i:0:1}
-      dir=${i,,}
+      dir=${i:l}
       if [[ "${f}" =~ "./$|../$" ]];then 
         continue
       fi
