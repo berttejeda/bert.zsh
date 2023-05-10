@@ -27,6 +27,7 @@ $HOME/AppData/Local/Programs/nvm/v16.5.0
 /c/tools/ruby24/bin
 ${HOME}/.conda/envs/py3
 ${HOME}/.conda/envs/py3/Scripts
+${HOME}/Miniconda3/Scripts
 /c/ProgramData/Miniconda3
 /c/ProgramData/Miniconda3/Scripts
 /c/tools/miniconda3/Scripts
