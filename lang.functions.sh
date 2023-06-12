@@ -183,7 +183,9 @@ except Exception as e:
 json.to_yaml(){
   if [[ "$*" =~ ".*--help.*" ]]; then echo -e "usage: ${FUNCNAME[0]} [path/to/file.json]";return 1;fi  
     process="import sys;import json;import yaml
-print(yaml.dump(yaml.load(json.dumps(json.loads(open('${1}').read()))), default_flow_style=False))
+file_data=open('$1').read()
+json_data=json.loads(file_data)
+print(yaml.dump(json_data, default_flow_style=False))
 "
   python -c "$process"
 }
