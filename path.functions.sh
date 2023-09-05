@@ -4,6 +4,7 @@
 # GOPATH is the location of your work directory. 
 # e.g. ~/HOME/go/projects
 
+export GOPATH="${HOME}/go"
 
 py_BINARY=python3
 if ! [[ ($(type /usr/{,local/}{,s}bin/${py_BINARY} 2> /dev/null)) || ($(which $py_BINARY)) ]];then
@@ -17,6 +18,7 @@ fi
 PATHS="""
 ${py_BINPATH}
 ${LOCALAPPDATA}/Programs/Git/mingw64/bin
+${GOPATH}
 /c/Program Files/Go/bin
 /c/git-sdk-64
 /c/Progra~1/OpenSSL/bin
