@@ -61,6 +61,7 @@ ${HOME}/.githooks
 /c/Progra~1/Amazon/SessionManagerPlugin/bin
 ${HOME}/bin
 $HOME/.jenv/bin
+/c/Program Files/Graphviz/bin
 """
 exclusions="/c/Program Files/Git/bin/git"
 NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | sort -u | egrep --text '^/' | tr '\n' ':')
