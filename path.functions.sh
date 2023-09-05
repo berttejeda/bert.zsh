@@ -17,6 +17,7 @@ fi
 PATHS="""
 ${py_BINPATH}
 ${LOCALAPPDATA}/Programs/Git/mingw64/bin
+/c/Program Files/Go/bin
 /c/git-sdk-64
 /c/Progra~1/OpenSSL/bin
 /c/oracle/instantclient_12_2
