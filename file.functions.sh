@@ -270,6 +270,35 @@ print [file for file in files]
     echo $* | python -c "$process"
 }
 
+files.grep () 
+{ 
+    if [ $# -lt 1 ]; then
+        cat  <<EOF
+usage: ${FUNCNAME[0]} [-files:<'filename1|filename2'>] [-search:<'string1|string2'>] [-replace:<'string1|string2'>]
+EOF
+        return 1;
+    fi
+    process="from pathlib import Path;import re
+
+path = Path('${1}')
+
+search_string = '${2}'
+
+pattern = re.compile(search_string)
+
+for o in path.rglob('${3}'):
+    if o.is_file():
+        file_path = o.as_posix()
+        print(f'Searching {file_path}')
+        text = o.read_text()
+        if pattern.search(text):
+            print(f'Found {search_string} in {file_path}')
+            print(pattern.search(text).group())
+            quit()
+";
+    echo $* | python -c "$process"
+}
+
 # List directories by size, largest on top
 function files.largest () {
 if [[ "$OSTYPE" =~ ".*darwin.*" ]]; then ducmd="du -k *";else ducmd="du --max-depth=0 -k *";fi
