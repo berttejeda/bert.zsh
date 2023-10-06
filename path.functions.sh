@@ -16,6 +16,11 @@ if [[ -n $os_is_osx ]];then
 fi
 
 PATHS="""
+/go/bin
+$GOPATH/bin
+/usr/local/go/bin
+$HOME/.goenv/shims
+$HOME/.goenv/bin
 ${py_BINPATH}
 ${LOCALAPPDATA}/Programs/Git/mingw64/bin
 ${GOPATH}
