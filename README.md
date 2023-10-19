@@ -44,8 +44,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
   `touch ~/.zshrc`
   `echo "test -t && exec zsh" >> ~/.bashrc`
 1. Clean up and test zsh
-  `rm -rf zsh zsh.tar.zst zstd`
-  `zsh --version`
+  `rm -rf zsh zsh.tar.zst zstd;
+  zsh --version`
 1. Install [Oh My Zsh](https://ohmyz.sh/)<br />
   `sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"`
   1. Install the zsh honukai theme<br />
