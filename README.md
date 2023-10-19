@@ -55,6 +55,9 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
   `
 1. Install bert.zsh<br />
   `source <(curl -Lks https://raw.githubusercontent.com/berttejeda/bert.zsh/master/.installer.sh)`
+1. Make zsh launch at bash startup
+   `echo 'test -t && exec zsh >> ~/.bashrc`
+1. Restart your terminal
 1. Prep miniconda3:<br />
   `
   conda init zsh;
