@@ -55,7 +55,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
   `
 1. Install bert.zsh<br />
   `source <(curl -Lks https://raw.githubusercontent.com/berttejeda/bert.zsh/master/.installer.sh)`
-1. Install miniconda3: `choco install -y miniconda3`
 1. Prep miniconda3:<br />
   `
   conda init zsh;
