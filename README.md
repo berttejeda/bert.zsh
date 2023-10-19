@@ -38,8 +38,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 1. Untar + decompress the zsh package:<br /> 
   `mkdir zsh && tar --use-compress-program=/c/msys64/usr/bin/zstd.exe -xvf zsh-5.9-2-x86_64.pkg.tar.zst -C zsh`
 1. Merge the zsh content to Git BASH directory:<br />
-  `cp -R zsh/etc /`
-  `cp -R zsh/usr /`
+  `cp -R zsh/etc /;
+  cp -R zsh/usr /`
 1. Set up zsh:<br />
   `touch ~/.zshrc`
   `echo "test -t && exec zsh" >> ~/.bashrc`
