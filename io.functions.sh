@@ -13,7 +13,7 @@ system.keep-alive(){
   [System.Windows.Forms.SendKeys]::SendWait("{PRTSC}");
     ForEach ($c in $progressBar){
       Write-Host -NoNewLine $c`b`b`b;
-      Start-Sleep 5
+      Start-Sleep "'"${1-10}"'"
     }
   } While ($true)
   '''
