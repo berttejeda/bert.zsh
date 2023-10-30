@@ -11,9 +11,8 @@ if ! [[ ($(type /usr/{,local/}{,s}bin/${py_BINARY} 2> /dev/null)) || ($(which $p
 	py_BINARY=python
 fi
 
-if [[ -n $os_is_osx ]];then 
-	py_BINPATH="$(${py_BINARY} -m site --user-base)/bin"
-fi
+py_BINPATH="$(${py_BINARY} -m site --user-base)/bin"
+py_ScriptsPath="$(${py_BINARY} -m site --user-base)/Scripts"
 
 PATHS="""
 /go/bin
@@ -22,6 +21,7 @@ $GOPATH/bin
 $HOME/.goenv/shims
 $HOME/.goenv/bin
 ${py_BINPATH}
+${py_ScriptsPath}
 ${LOCALAPPDATA}/Programs/Git/mingw64/bin
 ${GOPATH}
 /c/Program Files/Go/bin
