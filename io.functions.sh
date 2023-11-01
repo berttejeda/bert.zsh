@@ -10,7 +10,7 @@ system.keep-alive(){
   $opt.WarningForegroundColor = "white";
   $progressBar = ":| ",":[]"
   Do {[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
-  [System.Windows.Forms.SendKeys]::SendWait("{PRTSC}");
+  [System.Windows.Forms.SendKeys]::SendWait("+{F15}");
     ForEach ($c in $progressBar){
       Write-Host -NoNewLine $c`b`b`b;
       Start-Sleep "'"${1-10}"'"
