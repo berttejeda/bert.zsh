@@ -11,8 +11,16 @@ if ! [[ ($(type /usr/{,local/}{,s}bin/${py_BINARY} 2> /dev/null)) || ($(which $p
 	py_BINARY=python
 fi
 
-py_BINPATH="$(${py_BINARY} -m site --user-base)/bin"
-py_ScriptsPath="$(${py_BINARY} -m site --user-base)/Scripts"
+if [[ -n $os_is_windows ]];then
+	py_user_site=$(${py_BINARY} -m site --user-base)
+	py_user_site_posix=$(cygpath -u "${py_user_site}" | tr -d '\r')
+	py_BINPATH=$(echo -n "${py_user_site_posix}/bin")
+	py_ScriptsPath="${py_user_site_posix}/Scripts"
+	py_AppDataPaths=$(ls ${APPDATA}/python | while read p;do cygpath -u "${APPDATA}/python/${p}/bin" | tr -d '\r';cygpath -u "${APPDATA}/python/${p}/Scripts" | tr -d '\r';done | tr '\n' ':')
+else
+	py_BINPATH="$(${py_BINARY} -m site --user-base)/bin"
+	py_ScriptsPath="$(${py_BINARY} -m site --user-base)/Scripts"
+fi
 
 PATHS="""
 /go/bin
@@ -22,6 +30,7 @@ $HOME/.goenv/shims
 $HOME/.goenv/bin
 ${py_BINPATH}
 ${py_ScriptsPath}
+${py_AppDataPaths}
 ${LOCALAPPDATA}/Programs/Git/mingw64/bin
 ${GOPATH}
 /c/Program Files/Go/bin
