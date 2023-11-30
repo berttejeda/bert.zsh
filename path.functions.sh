@@ -71,8 +71,8 @@ ${HOME}/.cargo/bin
 ${HOME}/ProgramData/nvm
 ${HOME}/.local/bin
 ${HOME}/.githooks
-/c/Progra~1/Amazon/AWSCLIV2/bin
-/c/Progra~1/Amazon/AWSCLI/bin
+/c/Progra~1/Amazon/AWSCLIV2
+/c/Progra~1/Amazon/AWSCLI
 /c/Progra~1/Amazon/AWSSAMCLI/bin
 /c/Progra~1/Amazon/SessionManagerPlugin/bin
 ${HOME}/bin
