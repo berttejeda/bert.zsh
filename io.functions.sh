@@ -3,6 +3,7 @@ system.keep-alive(){
   # Keep the PC alive, will prevent screen lock and sleep.
   # Works by pressing Print Screen every 60 minutes, side effect is that a screenshot will overwrite the clipboard contents
   #
+  if [[ $os_is_windows ]];then
   command='''
   clear host;
   $opt = (Get-Host).PrivateData;
@@ -18,4 +19,7 @@ system.keep-alive(){
   } While ($true)
   '''
   eval powershell -noprofile -command "'${command}'"
+  elif [[ $os_is_osx ]];then
+    screen -dm caffeinate -d
+  fi
 }
