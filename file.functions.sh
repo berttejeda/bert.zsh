@@ -56,15 +56,16 @@ find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do
   namespace="ls"
   method=.${directory##*/}
 done
-# cd
+# cd,ls
 find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do 
-  namespace="cd";
   method=.${directory##*/};
   if ! [[ ${method} =~ "\.$" ]];then 
-    eval """function ${namespace}${method}(){ cd ${directory}/\${1}; }"""
+    eval """function cd${method}(){ cd ${directory}/\${1}; }"""
+    eval """function ls${method}(){ ls ${directory}/\${1}; }"""
     tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
     done | tr '\n' ' ')
-    complete -W "${tab_completion_options}" ${namespace}${method} 
+    complete -W "${tab_completion_options}" cd${method} 
+    complete -W "${tab_completion_options}" ls${method} 
   fi
 done
 #
