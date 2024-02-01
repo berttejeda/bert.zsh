@@ -36,13 +36,18 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 1. Download the zsh package (v5.9.2):<br />
   `curl -ksO https://repo.msys2.org/msys/x86_64/zsh-5.9-2-x86_64.pkg.tar.zst`
 1. Untar + decompress the zsh package:<br /> 
-  `mkdir zsh && tar --use-compress-program=/c/msys64/usr/bin/zstd.exe -xvf zsh-5.9-2-x86_64.pkg.tar.zst -C zsh`
+  `mkdir zsh && tar --use-compress-program=zstd -xvf zsh-5.9-2-x86_64.pkg.tar.zst -C zsh`<br />
+  Note: The above command assumes the `zstd.exe` binary is available via your PATH<br />
+  If you encounter an error similar to `tar.h: Cannotopen: No such file or directory`,<br />
+  you may have to adjust your PATH variable to include the location of the `ztsd.exe` binary,<br />
+  e.g. `export PATH="$PATH:/c/msys64/usr/bin"` if running from git-bash/msys or<br />
+  `$env:PATH="$($env:PATH);C:\msys64\usr\bin"` if running from Powershell<br />
+  (adjust the above to the location of the `ztsd.exe` binary on your machine)
 1. Merge the zsh content to Git BASH directory:<br />
   `cp -R zsh/etc /;
   cp -R zsh/usr /`
-1. Set up zsh:<br />
+1. Initialize the zsh init file:<br />
   `touch ~/.zshrc`
-  `echo "test -t && exec zsh" >> ~/.bashrc`
 1. Clean up and test zsh
   `rm -rf zsh zsh.tar.zst zstd;
   zsh --version`
