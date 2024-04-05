@@ -1,4 +1,11 @@
-export KUBECONFIG=$(ls ~/.kube/*.yaml | tr '\n' ':')
+export KUBECONFIG=$(find ~/.kube -iname '*.yaml' | tr '\n' ':')
+if [[ -z $KUBECONFIG ]];then
+  if [[ -f ~/.kube/config ]];then
+    export KUBECONFIG=~/.kube/config
+  else
+    echo "Could not derive a valid KUBECONFIG"
+  fi
+fi
  
 function k.aliases {
 if [[ $(type /usr/{,local/}{,s}bin/kubectl 2> /dev/null) || $(which kubectl 2> /dev/null) ]];then
@@ -7,7 +14,7 @@ if [[ $(type /usr/{,local/}{,s}bin/kubectl 2> /dev/null) || $(which kubectl 2> /
   alias k.config.context.list='kubectl config get-contexts'
   alias k.config.context.use='kubectl config use-context'
   k8s_contexts=$(kubectl config get-contexts -o name | sort -u 2>/dev/null)
-  k8s_namespaces=$(kubectl get namespaces -o custom-columns=NAME:metadata.name --no-headers 2>/dev/null)
+  k8s_namespaces=$(kubectl get namespaces -o custom-columns=":metadata.name" --no-headers 2>/dev/null)
   if [[ $? -eq 0 ]];then
     for k8s_context in ${k8s_contexts}; do
         context="k.config.context.use";
@@ -15,13 +22,13 @@ if [[ $(type /usr/{,local/}{,s}bin/kubectl 2> /dev/null) || $(which kubectl 2> /
         method=${k8s_context//:/.}
         alias "${context}.${method}=kubectl config use-context ${k8s_context}"
     done
-    for k8s_namespace in ${k8s_namespaces}; do
-      namespace="k.";method=${k8s_namespace//-/.}
+    for k8s_namespace in $(echo -e "${k8s_namespaces}"); do
+      namespace="k."
+      method=${k8s_namespace//-/.}
       alias "${namespace}${method}=kubectl --namespace ${k8s_namespace}"
       eval """function ${namespace}${method}.logs(){ kubectl --namespace ${k8s_namespace} logs \$(kubectl --namespace ${k8s_namespace} get pods -o name | grep -i \${1?'YOU MUST SPECIFY A PODNAME'}); }"""
       alias "${namespace}${method}.pods=kubectl --namespace ${k8s_namespace} get pods"
-      eval """function ${namespace}${method}.describe(){ kubectl --namespace ${k8s_namespace} describe \$(kubectl --namespace ${k8s_namespace} get \${1?'YOU MUST SPECIFY
-A RESOURCE TYPE'} -o name | grep -i \${2?'YOU MUST SPECIFY THE RESOURCE NAME'}); }"""
+      eval """function ${namespace}${method}.describe(){ kubectl --namespace ${k8s_namespace} describe \$(kubectl --namespace ${k8s_namespace} get \${1?'YOU MUST SPECIFY A RESOURCE TYPE'} -o name | grep -i \${2?'YOU MUST SPECIFY THE RESOURCE NAME'}); }"""
       eval """function ${namespace}${method}.exec(){ POD_NAME=\$(kubectl --namespace ${k8s_namespace} get pods -o name | grep -i \${1?'YOU MUST SPECIFY A PODNAME'});kubectl --namespace ${k8s_namespace} exec -it \${POD_NAME##*/} \${2?'YOU MUST SPECIFY A COMMAND'}; }"""
       alias "${namespace}${method}.services=kubectl --namespace ${k8s_namespace} get services"
       alias "${namespace}${method}.deployments=kubectl --namespace ${k8s_namespace} get deployments"
