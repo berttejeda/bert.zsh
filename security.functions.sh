@@ -1,3 +1,6 @@
+alias bw.login="BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE});export BW_SESSION=$(bw login $BITWARDEN_USER_EMAIL $BW_PASSWORD --raw)"
+alias bw.unlock="BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE});export BW_SESSION=$(bw unlock $BW_PASSWORD --raw)"
+
 file.encrypt(){
 	declare -A params=(
 	["--public-key|-k$"]="[PEM-formatted public key]"
