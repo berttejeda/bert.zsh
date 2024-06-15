@@ -235,8 +235,9 @@ function kind.cluster.init(){
   fi
 
   echo "Creating cluster ..."
+local cluster_name=${k8s_cluster_name-local-k8s-cluster}
 cat <<EOF | $PREFIX kind create cluster \
---name ${k8s_cluster_name-kind-k8s-cluster} \
+--name ${cluster_name} \
 --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -253,13 +254,12 @@ EOF
   if [[ ! -d $HOME/.kube ]];then mkdir $HOME/.kube;fi
   if [[ -f $HOME/.kube/kind.yaml ]];then 
     if $(confirm "Replace $HOME/.kube/kind.yaml");then
-      kind get kubeconfig | tee ~/.kube/kind.yaml;
+      kind get kubeconfig -n ${cluster_name} | tee ~/.kube/kind.yaml;
     else
       echo "Skipping init of kubernetes context"
     fi
   fi
-  local kind_k8s_context_name="kind-${k8s_cluster_name}"
-  eval "${PREFIX} kind --name ${k8s_cluster_name} get kubeconfig | tee ~/.kube/${kind_k8s_context_name}.yaml"
+  local kind_k8s_context_name="kind-${cluster_name}"
   $PREFIX export KUBECONFIG=$(ls ~/.kube/*.yaml | tr '\n' ':')
   $PREFIX kubectl config use-context "${kind_k8s_context_name}"
 }
