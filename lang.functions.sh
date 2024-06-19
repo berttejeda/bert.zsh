@@ -254,3 +254,12 @@ cs.build(){
     cmd //c "${bin_path}\csc.exe /r:${mgmt_automation_dll} /unsafe /platform:anycpu /out:${out_file-${source_file%%.*}.exe} ${source_file}"
   fi
 }
+
+powershell.history () { 
+  command='''
+  $find = $args; 
+  Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"; 
+  Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_ -like "*$find*"} | Get-Unique | more 
+  '''
+  eval powershell -noprofile -command "'${command}'"
+}
