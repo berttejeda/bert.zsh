@@ -209,6 +209,7 @@ function kind.cluster.init(){
   
   while (( $# )); do
     if [[ "$1" =~ "^--cluster-name$|^-n$" ]]; then local k8s_cluster_name="${2}";shift;fi
+    if [[ "$1" =~ "^--cluster-port$|^-n$" ]]; then local k8s_cluster_port="${2}";shift;fi
     if [[ "$1" =~ "^--control-plane-port$|^-cp$" ]]; then local k8s_control_plane_port="${2}";shift;fi
     if [[ "$1" =~ "^--worker-port$|^-cp$" ]]; then local k8s_worker_port="${2}";shift;fi
     if [[ "$1" =~ "^--help$|^-h$" ]]; then local help=true;fi
@@ -235,14 +236,28 @@ function kind.cluster.init(){
   fi
 
   echo "Creating cluster ..."
-local cluster_name=${k8s_cluster_name-local-k8s-cluster}
+local default_cluster_name="local-k8s-cluster"
+local cluster_name=${k8s_cluster_name-${default_cluster_name}}
+local default_cluster_port=$[$[RANDOM%9000]+30000]
+local cluster_port=${k8s_cluster_port-${default_cluster_port}}
+local default_cluster_listen_address="0.0.0.0"
+local cluster_listen_address=${k8s_cluster_address-${default_cluster_listen_address}}
 cat <<EOF | $PREFIX kind create cluster \
 --name ${cluster_name} \
 --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  apiServerAddress: ${cluster_listen_address}
+  apiServerPort: ${cluster_port}
 nodes:
 - role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+        certSANs:
+          - "10.10.1.60"  
   extraPortMappings:
   - containerPort: ${k8s_control_plane_port-${k8s_control_plane_port_random}}
     hostPort: ${k8s_control_plane_port-${k8s_control_plane_port_random}}
@@ -254,7 +269,12 @@ EOF
   if [[ ! -d $HOME/.kube ]];then mkdir $HOME/.kube;fi
   if [[ -f $HOME/.kube/kind.yaml ]];then 
     if $(confirm "Replace $HOME/.kube/kind.yaml");then
-      kind get kubeconfig -n ${cluster_name} | tee ~/.kube/kind.yaml;
+      if [[ $cluster_listen_address == $default_cluster_listen_address ]];then
+        # kind get kubeconfig -n ${cluster_name} | sed -e "s|${$default_cluster_listen_address}|g" | tee ~/.kube/kind.yaml;
+        kind get kubeconfig -n ${cluster_name} | tee ~/.kube/kind.yaml;
+      else
+        kind get kubeconfig -n ${cluster_name} | tee ~/.kube/kind.yaml;
+      fi
     else
       echo "Skipping init of kubernetes context"
     fi
