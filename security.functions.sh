@@ -1,12 +1,138 @@
 bw.login(){
-  BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE})
-  export BW_SESSION=$(bw login $BITWARDEN_USER_EMAIL $BW_PASSWORD --raw)
+
+  if [[ "$*" =~ ".*--help.*" ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+  local response
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--password$|^-p$|@The password to use for authentication' ]]; then local BITWARDEN_PASSWORD=$1;continue;fi
+    if [[ "$arg" =~ '^--password-file$|^-f$|@The password file to use for authentication with password' ]]; then local BITWARDEN_PASSWORD_FILE=$1;continue;fi
+    if [[ "$arg" =~ '^--user-email$|^-u$|@The email to use for user authentication' ]]; then local BITWARDEN_USER_EMAIL=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  if [[ -z $BITWARDEN_PASSWORD ]];then
+  if [[ ! -z $BITWARDEN_PASSWORD_FILE ]];then
+    BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE})
+  else
+    echo "Error: No value for \$BITWARDEN_PASSWORD or \$BITWARDEN_PASSWORD_FILE"
+  fi
+  fi
+
+  export BW_SESSION=$(bw login ${BITWARDEN_USER_EMAIL?Error: Must provide user email for authentication} $BW_PASSWORD --raw)
+}
+
+bw.logout(){
+  bw logout
+}
+
+bw.copy_item(){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+  local response
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--source-password$|^-sp$|@The password to use for authentication against the source account' ]]; then local SOURCE_BITWARDEN_PASSWORD=$1;continue;fi
+    if [[ "$arg" =~ '^--source-password-file$|^-sf$|@The password file to use for authentication with password against the source account' ]]; then local SOURCE_BITWARDEN_PASSWORD_FILE=$1;continue;fi
+    if [[ "$arg" =~ '^--source-user-email$|^-su$|@The email to use for user authentication against the source account' ]]; then local SOURCE_BITWARDEN_USER_EMAIL=$1;continue;fi
+    if [[ "$arg" =~ '^--target-password$|^-tp$|@The password to use for authentication against the target account' ]]; then local TARGET_BITWARDEN_PASSWORD=$1;continue;fi
+    if [[ "$arg" =~ '^--target-password-file$|^-tf$|@The password file to use for authentication with password against the target account' ]]; then local TARGET_BITWARDEN_PASSWORD_FILE=$1;continue;fi
+    if [[ "$arg" =~ '^--target-user-email$|^-tu$|@The email to use for user authentication against the target account' ]]; then local TARGET_BITWARDEN_USER_EMAIL=$1;continue;fi
+    if [[ "$arg" =~ '^--source-item-name$|^-in$|@The name of the login item in the source vault to copy over' ]]; then local SOURCE_BITWARDEN_ITEM_NAME=$1;continue;fi
+    if [[ "$arg" =~ '^--folder-name$|^-tfn$|@The name of the folder in the target vault to copy the item to' ]]; then local TARGET_BITWARDEN_FOLDER_NAME=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
+    set -- "$@" "$arg"
+  done
+  
+  echo "Logging out of current bw session"
+  $PREFIX bw.logout
+  
+  echo "Logging in with default bw credentials"
+  $PREFIX bw.login
+  
+  echo "Retrieving source login item json"
+  if [[ $PREFIX == "echo" ]];then
+    echo item_json\=\$\(bw list items --search \"${SOURCE_BITWARDEN_ITEM_NAME}\" \| jq -r '.[]'\)
+  else
+    item_json=$(bw list items --search "${SOURCE_BITWARDEN_ITEM_NAME}" | jq -r '.[]')
+  fi
+  
+  echo "Logging out of current bw session"
+  $PREFIX bw logout
+  
+  echo "Logging in with target bw credentials"
+  $PREFIX bw.login --user-email $TARGET_BITWARDEN_USER_EMAIL \
+  --password-file $TARGET_BITWARDEN_PASSWORD_FILE
+  
+  echo "Retrieving target folder ID"
+  if [[ $PREFIX == "echo" ]];then
+    echo TARGET_BITWARDEN_FOLDER_ID\=\$\(bw get folder \"${TARGET_BITWARDEN_FOLDER_NAME}\" \| jq -r '.id'\)
+    # echo TARGET_BITWARDEN_FOLDER_ID\=\$\(bw get folder \"${TARGET_BITWARDEN_FOLDER_NAME}\" \2\>\&1 \| tail -n +2 \| head -n +1\)
+  else
+    if ! $(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 >/dev/null);then
+      TARGET_BITWARDEN_FOLDER_ID=$(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 | tail -n +2 | head -n +1)
+    else
+      TARGET_BITWARDEN_FOLDER_ID=$(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" | jq -r '.id')
+    fi
+  fi
+
+  if [[ $PREFIX == "echo" ]];then
+    echo echo -e \"\${item_json}\" \| \
+      jq -r \
+      --arg folderId \$TARGET_BITWARDEN_FOLDER_ID \
+      \'.folderId = \$folderId\' \| bw encode \| bw create item
+  else
+    echo -e "${item_json}" | \
+    jq -r \
+    --arg folderId  $TARGET_BITWARDEN_FOLDER_ID \
+    '.folderId = $folderId' | bw encode | bw create item
+  fi 
+
+
+  echo "Logging out of current bw session"
+  $PREFIX bw.logout
+  
+  echo "Logging in with default bw credentials"
+  $PREFIX bw.login
+
 }
 
 bw.unlock(){
+
+  if [[ "$*" =~ ".*--help.*" ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+  local response
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--password-file$|^-f$|@The password file to use for authentication with password' ]]; then local BITWARDEN_PASSWORD_FILE=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    if [[ "$arg" =~ '^--help$|@Show Help' ]]; then help=true;continue;fi
+    set -- "$@" "$arg"
+  done
+
   BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE})
   export BW_SESSION=$(bw unlock $BW_PASSWORD --raw)
 }
+
 
 file.encrypt(){
 	declare -A params=(
