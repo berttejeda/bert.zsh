@@ -306,7 +306,7 @@ if [[ "$OSTYPE" =~ ".*darwin.*" ]]; then ducmd="du -k *";else ducmd="du --max-de
 $ducmd | sort -nr | awk '{ if($1>=1024*1024) {size=$1/1024/1024; unit="G"} else if($1>=1024) {size=$1/1024; unit="M"} else {size=$1; unit="K"}; if(size<10) format="%.1f%s"; else format="%.0f%s"; res=sprintf(format,size,unit); printf "%-8s %s\n",res,$2 }'
 }
 
-ls.filter () {
+ls.grep () {
   if [ $# -lt 1 ]; then
     ls
   else
