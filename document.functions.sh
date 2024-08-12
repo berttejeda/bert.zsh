@@ -1,7 +1,7 @@
 # document
 
 # bertdotcheater
-alias cf="bt-cheater find"
+alias cf="bert.cheater find"
 
 # pdfgrep
 pdf.search () { ls *.pdf | grep -i "${1}" | while read book;do echo $book;pdfgrep "$2" "${book}";done; }
