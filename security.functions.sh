@@ -33,6 +33,10 @@ bw.logout(){
   bw logout
 }
 
+bw.sync(){
+  bw sync
+}
+
 bw.copy_item(){
 
   if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
