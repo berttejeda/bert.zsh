@@ -314,7 +314,7 @@ ls.grep () {
   fi
 }
 
-function tree() {
+function files.tree() {
   
   find $1 ! -path './.git/*' -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 
