@@ -34,7 +34,7 @@ fi
 #
 # Popular Home Directories
 #
-directories=( ~/git ~/Documents ~/Downloads ~/Pictures )
+directories=( ~/git ~/Documents ~/Downloads ~/Pictures ~/Desktop)
 for directory in ${directories[@]};do
   namespace="cd";method=.${directory##*/};
   if ! [[ ${method} =~ "\.$" ]];then 
