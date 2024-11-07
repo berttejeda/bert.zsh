@@ -19,7 +19,7 @@ export EDITOR_COMMAND_W_WAIT="${EDITOR_COMMAND_W_WAIT-'${EDITOR_PATH}' -w}"
 
 # sublime text
 function subl() { 
-  eval "${EDITOR_COMMAND}" ${*}
+  eval "${EDITOR_COMMAND}" "'${*}'"
 }
 
 # Text formatting
