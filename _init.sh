@@ -24,8 +24,8 @@ function subl() {
 
 # per-directory automation routines
 cd() { builtin cd "$@" &&
-if [ -f ".dir-exec" ]; then
-   source ".dir-exec"
+if [ -f ".dir-exec.sh" ]; then
+   source ".dir-exec.sh"
 fi
 }
 
