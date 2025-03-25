@@ -22,6 +22,13 @@ function subl() {
   eval "${EDITOR_COMMAND}" "'${*}'"
 }
 
+# per-directory automation routines
+cd() { builtin cd "$@" &&
+if [ -f ".dir-exec" ]; then
+   source ".dir-exec"
+fi
+}
+
 # Text formatting
 text.format(){
 
