@@ -172,3 +172,26 @@ function aws.ec2.clone {
   echo -e "\t\Instance is up and ready"
 }
 
+function aws.ec2.change-instance-role {
+
+  myInstanceID=${1:?"Must specify instanceID!"}
+  targetRole=${2:?"Must specify Target Role!"}
+  AWS_REGION=${3:=us-east-1}
+  currentEC2InstanceRoleAssociationID=$(aws --region us-east-1 ec2 describe-iam-instance-profile-associations --filters Name=instance-id,Values="${myInstanceID}" | jq -r '.[] | .[] | .AssociationId')
+  currentEC2InstanceProfile=$(aws --region ${AWS_REGION} ec2 describe-instances --instance-id $myInstanceID --query "Reservations[*].Instances[*].IamInstanceProfile.Arn" --output text)
+  currentEC2InstanceProfileName="${currentEC2InstanceProfile##*/}"
+  echo "Temporarily switching EC2 instance role from ${currentEC2InstanceProfileName} to ${targetRole}"
+  aws --region ${AWS_REGION} ec2 disassociate-iam-instance-profile --association-id $currentEC2InstanceRoleAssociationID
+  aws --region ${AWS_REGION} ec2 associate-iam-instance-profile \
+  --instance-id $myInstanceID \
+  --iam-instance-profile Name=${targetRole}
+  echo "Press Enter to revert instance to original instance profile"
+  read -s
+  echo "Restoring EC2 Instance role to ${currentEC2InstanceProfileName}"
+  currentEC2InstanceRoleAssociationID=$(aws --region ${AWS_REGION} ec2 describe-iam-instance-profile-associations --filters Name=instance-id,Values="${myInstanceID}" | jq -r '.[] | .[] | .AssociationId')
+  aws --region ${AWS_REGION} ec2 disassociate-iam-instance-profile --association-id $currentEC2InstanceRoleAssociationID
+  aws ec2 associate-iam-instance-profile \
+  --instance-id $myInstanceID \
+  --iam-instance-profile Name=${currentEC2InstanceProfileName}
+
+}

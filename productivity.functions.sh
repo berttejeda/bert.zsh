@@ -1,28 +1,48 @@
 # productivity
 function remind.me {
-  if ! [[ "$OSTYPE" =~ ".*darwin.*" ]]; then echo "This works only on OSX";return 1;fi
-  usage="Usage: 
-  ${FUNCNAME[0]} to \"Submit TPS reports\" on $(date +%D' '%H:%M:%S%p )
-  or
-  ${FUNCNAME[0]} to \"Submit TPS reports\" in 30 minutes
-  or
-  ${FUNCNAME[0]} to \"Submit TPS reports\" in 1 hour
-  or
-  ${FUNCNAME[0]} to \"Submit TPS reports\" at 5:00PM
-  Specifying a Reminders List:
-    ${FUNCNAME[0]} to \"Submit TPS reports\" at 5:00PM --list Personal
-  "
-  [ $# -lt 1 ] && echo -e "${usage}" >&2 && return 1
-  list="Reminders"
-  while (( $# )); do
-    if [[ "$1" =~ ".*--list.*" ]]; then 
-      list=$2;
-    else 
-      args="${args} $1"
-    fi    
+
+  if ! [[ "$OSTYPE" =~ ".*darwin.*" ]]; then 
+    echo "This works only on OSX";
+    return 1
+  fi
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    
+    show_help $funcstack[1]
+
+    echo """
+    Examples: 
+      ${FUNCNAME[0]} -to 'Submit TPS reports' -d $(date +%D' '%H:%M:%S%p)
+      or
+      ${FUNCNAME[0]} to 'Submit TPS reports' -d 30 minutes
+      or
+      ${FUNCNAME[0]} to 'Submit TPS reports' -d 1 hour
+      or
+      ${FUNCNAME[0]} to 'Submit TPS reports' -d 5:00PM
+      or
+      Specifying a Reminders List:
+        ${FUNCNAME[0]} to 'Submit TPS reports' -d 5:00PM --list Personal
+    """
+    return
+  fi
+
+  local PREFIX=eval
+  local args=""
+
+  for arg in "${@}";do
     shift
-  done  
-  osascript - ${args}<<END
+    if [[ "$arg" =~ '^--to-do$|^-to$|@What you want to be reminded about - required' ]]; then local to_do=$1;args="${args} ${1}";continue;fi
+    if [[ "$arg" =~ '^--date$|^-d$|@The date or time you want to be reminded on - required' ]]; then local date_time=$1;args="${args} ${1}";continue;fi
+    if [[ "$arg" =~ '^--list$|^-l$|@The reminders list you want to target - optional' ]]; then local list=$1;args="${args} ${1}";continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  echo $args
+
+  return
+
+  $PREFIX osascript - ${args}<<END
     on run argv
       set AppleScript's text item delimiters to " "
       set reminder_text to item 2 thru item -4 of argv as string
