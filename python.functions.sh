@@ -135,3 +135,7 @@ conda.env.activate(){
   fi
 }
 
+pip.freeze.requirements(){
+  requirements_file=${1-requirements.txt}
+  pip freeze -r "${requirements_file}" | sed '/freeze/,$ d'
+}
