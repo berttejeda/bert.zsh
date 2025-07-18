@@ -381,6 +381,24 @@ git.branches.remote() {
   done | sort -r
 }
 
+git.show.commits() {
+  # from https://github.com/trimstray/the-book-of-secret-knowledge?tab=readme-ov-file#tool-git
+  # git log --oneline --decorate --graph --all
+  git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+}
+
+git.clean() {
+  echo "Resetting local git repo ..."
+  cd $(git rev-parse --show-toplevel)
+  git clean -f .
+  git checkout .
+  if ! $(git checkout ${1-master} 2> /dev/null);then 
+    git checkout ${1-main}
+  fi
+  git pull
+  echo "Done!"
+}
+
 #--------------------------------------------------------------------------------------------------#
 # Git shortcuts
 alias git.undocommit='git reset --soft HEAD^'
