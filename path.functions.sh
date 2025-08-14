@@ -79,6 +79,7 @@ ${HOME}/bin
 $HOME/.jenv/bin
 /c/Program Files/Graphviz/bin
 ${KREW_ROOT:-$HOME/.krew}/bin
+/opt/homebrew/opt/gawk/libexec/gnubin
 """
 exclusions="/c/Program Files/Git/bin/git"
 NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | sort -u | egrep --text '^/' | tr '\n' ':')
