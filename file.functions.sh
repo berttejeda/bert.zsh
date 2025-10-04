@@ -52,16 +52,17 @@ workspace_directories=$(find ~/Documents/workspace -maxdepth 1 -type d)
 
 function cd.workspace(){cd ~/Documents/workspace}
 
-find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do 
-  namespace="ls"
-  method=.${directory##*/}
-done
+# find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do 
+#   namespace="ls"
+#   method=.${directory##*/}
+# done
 # cd,ls
 find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do 
   method=.${directory##*/};
   if ! [[ ${method} =~ "\.$" ]];then 
-    eval """function cd${method}(){ cd ${directory}/\${1}; }"""
+    eval """function cd${method}(){ cd ${directory}/\${1}\${2}; }"""
     eval """function ls${method}(){ ls ${directory}/\${1}; }"""
+    eval """function ls${method}.grep(){ ls ${directory} | grep \${1}; }"""
     tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
     done | tr '\n' ' ')
     complete -W "${tab_completion_options}" cd${method} 
