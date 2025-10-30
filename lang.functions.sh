@@ -196,7 +196,7 @@ yaml.to_json(){
 filepath = os.path.expanduser('${1}')
 content = open(filepath).read();
 yaml_content = yaml.safe_load(content);
-print(json.dumps(yaml_content))"
+print(json.dumps(yaml_content,${indent_arg}))"
   python -c "${process}"
 }
 
