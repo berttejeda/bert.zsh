@@ -672,3 +672,10 @@ files.batch() {
   fi
 }
 
+rsync.noperms(){
+  srsync -Pavr --no-perms --no-owner --no-group "${1}" "${2}"
+}
+
+rsync.noperms.bg(){
+  screen -dm rsync -Pavr --no-perms --no-owner --no-group "${1}" "${2}"
+}
