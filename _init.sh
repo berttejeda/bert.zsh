@@ -17,8 +17,7 @@ fi
 export EDITOR_COMMAND="${EDITOR_COMMAND-'${EDITOR_PATH}' -a}"
 export EDITOR_COMMAND_W_WAIT="${EDITOR_COMMAND_W_WAIT-'${EDITOR_PATH}' -w}"
 
-# sublime text
-function subl() { 
+function edit() { 
   eval "${EDITOR_COMMAND}" "'${*}'"
 }
 
