@@ -102,3 +102,32 @@ print (dictionary.translate(word,language))"
   echo $1 | python -c "$process"
 }
 
+function current.tasks.start(){
+
+  if [[ -z $CURRENT_CONTEXT ]];then
+    echo "Must set CURRENT_CONTEXT variable!"
+    return
+  fi
+
+  CURRENT_CONTEXT_DIR_DEFAULT="${HOME}/Documents/workspace/${CURRENT_CONTEXT}/current"
+  CURRENT_CONTEXT_DIR="${CURRENT_CONTEXT_DIR-${CURRENT_CONTEXT_DIR_DEFAULT}}"
+  CURRENT_CONTEXT_FILENAME_DEFAULT="current.md"
+  CURRENT_CONTEXT_FILENAME="${CURRENT_CONTEXT_FILE-${CURRENT_CONTEXT_FILE_DEFAULT}}"
+  CURRENT_CONTEXT_FILE="${CURRENT_CONTEXT_DIR}/${CURRENT_CONTEXT_FILENAME}"
+  CURRENT_CONTEXT_PORT=${CURRENT_CONTEXT_PORT-9080}
+
+  if [[ ! -d $CURRENT_CONTEXT_DIR ]];then
+    echo "Creating Current Context Directory ${CURRENT_CONTEXT_DIR}"
+    mkdir -p "${CURRENT_CONTEXT_DIR}"
+  fi
+  
+  if ! (screen -ls | grep -i current_tasks) 2>&1 > /dev/null;then
+    echo "Initializing current tasks"
+    screen -S current_tasks -dm markmap -w ${CURRENT_CONTEXT_FILE} --port ${CURRENT_CONTEXT_PORT}
+    edit ${CURRENT_CONTEXT_FILE}
+  else
+    echo "Resuming current tasks"
+    open "http://localhost:${CURRENT_CONTEXT_PORT}/?key=10c4871&filename=current.md"
+    edit ${CURRENT_CONTEXT_FILE}
+  fi  
+}
