@@ -46,11 +46,10 @@ for directory in ${directories[@]};do
     complete -W "${tab_completion_options}" ${namespace}${method} 
   fi
 done
+
 #
 # Workspace
 # 
-# ls
-workspace_directories=$(find ~/Documents/workspace -maxdepth 1 -type d)
 
 function cd.workspace(){cd ~/Documents/workspace}
 
