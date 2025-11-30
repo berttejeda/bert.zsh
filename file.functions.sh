@@ -202,9 +202,11 @@ files.organize.a_z(){
           fi            
           if [[ ! $(test -f "${target}/#/${f}") || ! $(test -d "${target}/#/${f}") ]];then 
             echo "Moving ${f} to ${target}/#"
-            mv "$f" "${target}/#"
+            rsync --remove-source-files -a "$f" "${target}/#"
           else
-            echo "Not moving ${f} to ${target}/#/${f} - file or directory exists"
+            if [[ -n $BERT_ZSH_DEBUG ]];then
+              echo "Not moving ${f} to ${target}/#/${f} - file or directory exists"
+            fi
           fi          
       else
         if ! test -d "${target}/${dir}";then 
@@ -213,12 +215,14 @@ files.organize.a_z(){
         fi
         re="${f}$"
         if [[ "${target}/${dir}" =~ "$re" ]];then 
-          echo "Not moving ${f} to ${target}/${dir}/${f} - same file or directory"
+          if [[ -n $BERT_ZSH_DEBUG ]];then
+            echo "Not moving ${f} to ${target}/${dir}/${f} - same file or directory"
+          fi
           continue
         fi           
         if [[ ! $(test -f "${target}/${dir}/${f}") || ! $(test -d "${target}/${dir}/${f}") ]];then 
           echo "Moving ${f} to ${target}/${dir}"
-          mv "$f" "${target}/${dir}"
+          rsync --remove-source-files -a "$f" "${target}/${dir}"
         else
           echo "Not moving ${f} to ${target}/${dir} - file or directory exists"
         fi
