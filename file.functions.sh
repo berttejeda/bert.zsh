@@ -177,6 +177,56 @@ file.text.replace () { grep -l $1 $3 | while read file;do sed -i "s/$1/$2/g" $fi
 file.line.delete () { sed -i ${2} -e "${1}d" ; } 
 find.newest () { find ./ -cmin -$1 ; }
 
+files.organize.a_z(){
+  target=${1-${PWD}}
+  if ! test -d "$target";then 
+    mkdir -p "${target}";
+  fi
+  find ./ -maxdepth 1 | while read f ; do
+    if test "${f}"; then 
+      i=${f##*/}
+      i=${i:0:1}
+      dir=${i:l}
+      if [[ "${f}" =~ "./$|../$" ]];then 
+        continue
+      fi
+      if [[ $dir != [a-z] ]]; then 
+        if ! test -d "${target}/#";then 
+          echo "Creating ${target}/#"      
+          mkdir -p "${target}/#"
+        fi
+          re="${f}$"
+          if [[ "${target}/#" =~ "$re" ]];then 
+            echo "Not moving ${f} to ${target}/${dir} - same file or directory"
+            continue
+          fi            
+          if [[ ! $(test -f "${target}/#/${f}") || ! $(test -d "${target}/#/${f}") ]];then 
+            echo "Moving ${f} to ${target}/#"
+            mv "$f" "${target}/#"
+          else
+            echo "Not moving ${f} to ${target}/#/${f} - file or directory exists"
+          fi          
+      else
+        if ! test -d "${target}/${dir}";then 
+          echo "Creating ${target}/${dir}"
+          mkdir -p "${target}/${dir}"
+        fi
+        re="${f}$"
+        if [[ "${target}/${dir}" =~ "$re" ]];then 
+          echo "Not moving ${f} to ${target}/${dir}/${f} - same file or directory"
+          continue
+        fi           
+        if [[ ! $(test -f "${target}/${dir}/${f}") || ! $(test -d "${target}/${dir}/${f}") ]];then 
+          echo "Moving ${f} to ${target}/${dir}"
+          mv "$f" "${target}/${dir}"
+        else
+          echo "Not moving ${f} to ${target}/${dir} - file or directory exists"
+        fi
+      fi
+    fi
+  done  
+}
+
 files.to.workspace() {
   if [[ "$1" =~ ".*--help.*" ]];then
     echo "Usage: ${FUNCNAME[0]} --destination [/some/path] [--dry]";return 1
@@ -199,171 +249,6 @@ files.to.workspace() {
     echo "Moving ${f} to ${workspace}"
     $PREFIX mv "${f}" $workspace
   done
-}
-
-files.organize.a_z () 
-{ 
-    if [ $# -lt 1 ]; then
-        cat  <<EOF
-usage: ${FUNCNAME[0]}
-EOF
-        return 1;
-    fi
-    process="import argparse;import os;import shutil;import subprocess;import sys;import stat;import string;from pathlib import Path
-def rsync_move_file(src: Path, dest_dir: Path) -> bool:
-    rsync = shutil.which('rsync')
-    if rsync is None:
-        return False
-    # Ensure dest_dir exists
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
-    # rsync syntax: rsync --remove-source-files -a src dest_dir/
-    cmd = [rsync, '--remove-source-files', '-a', str(src), str(dest_dir) + os.sep]
-    try:
-        proc = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except Exception as e:
-        print(f'rsync invocation failed: {e}')
-        return False
-    if proc.returncode != 0:
-        print(f'rsync failed ({proc.returncode}): {proc.stderr.decode().strip()}')
-        return False
-
-    # rsync's --remove-source-files removes files but not parent directories.
-    # Confirm source file is gone (rsync might not remove on some conditions).
-    if not src.exists():
-        return True
-    else:
-        # If rsync didn't remove file, attempt to remove it now (be conservative).
-        try:
-            src.unlink()
-            return True
-        except Exception:
-            return False
-
-def safe_move(src: Path, dest_dir: Path) -> bool:
-    dest_dir = dest_dir.resolve()
-    dest = dest_dir / src.name
-    # if destination exists, do not overwrite (mirror original script behavior)
-    if dest.exists():
-        print(f'Not moving {src} to {dest_dir} - file or directory exists')
-        return False
-
-    # If src is a file (or symlink to file), prefer rsync when dest_dir already existed.
-    if src.is_file() or src.is_symlink():
-        # If dest_dir already exists, use rsync to preserve copy+remove semantics requested.
-        if dest_dir.exists() and shutil.which('rsync') is not None:
-            print(f'Moving {src} to {dest_dir} using rsync')
-            ok = rsync_move_file(src, dest_dir)
-            if not ok:
-                print(f'rsync move failed for {src}, falling back to shutil.move')
-                try:
-                    shutil.move(str(src), str(dest_dir))
-                    return True
-                except Exception as e:
-                    print(f'Failed to move {src} to {dest_dir}: {e}')
-                    return False
-            return True
-        else:
-            # dest_dir didn't exist (or rsync not available) -> use shutil.move
-            try:
-                print(f'Moving {src} to {dest_dir}')
-                dest_dir.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(src), str(dest_dir))
-                return True
-            except Exception as e:
-                print(f'Failed to move {src} to {dest_dir}: {e}')
-                return False
-    elif src.is_dir():
-        # For directories, use shutil.move (mv behavior)
-        try:
-            print(f'Moving directory {src} to {dest_dir}')
-            dest_dir.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(src), str(dest_dir))
-            return True
-        except Exception as e:
-            print(f'Failed to move directory {src} to {dest_dir}: {e}')
-            return False
-    else:
-        # Unknown type (device, fifo, etc.), attempt to move
-        try:
-            print(f'Moving {src} to {dest_dir}')
-            dest_dir.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(src), str(dest_dir))
-            return True
-        except Exception as e:
-            print(f'Failed to move {src} to {dest_dir}: {e}')
-            return False
-
-def organize(target: Path):
-    cwd = Path.cwd().resolve()
-    target = target.resolve()
-
-    # Ensure target exists
-    target.mkdir(parents=True, exist_ok=True)
-
-    # The immediate organizing directories we should not try to move
-    protected_names = set(['#'])
-    protected_names.update(c for c in string.ascii_lowercase)
-
-    for name in sorted(os.listdir(cwd)):
-        # ignore '.' and '..' (os.listdir doesn't return them)
-        src = cwd / name
-
-        # skip the target directory itself if it's inside this cwd (to avoid moving it)
-        try:
-            if src.resolve() == target:
-                # e.g. the user passed a subdir of cwd as the target; skip it
-                continue
-        except Exception:
-            # If resolving fails, be conservative and skip
-            continue
-
-        # skip the organizing directories themselves so we don't move them into themselves
-        if name in protected_names:
-            # But be careful: if the user specified a different target path, we may still want
-            # to move those items if they're not the organizing dirs. This mirrors your zsh behavior.
-            continue
-
-        # Skip hidden entries? original didn't; we won't either.
-
-        # get first character of basename (empty name should be skipped)
-        if not name:
-            continue
-        first = name[0].lower()
-
-        if first >= 'a' and first <= 'z':
-            dest_dir = target / first
-        else:
-            dest_dir = target / '#'
-
-        # Avoid trying to move if src is the same path as destination (shouldn't happen
-        # because dest_dir is inside target and src is in cwd), but check anyway.
-        try:
-            dest_candidate = (dest_dir / name).resolve()
-            src_resolved = src.resolve()
-            if dest_candidate == src_resolved:
-                print(f'Not moving {src} to {dest_dir} - same file or directory')
-                continue
-        except Exception:
-            # If resolution fails, proceed with regular checks
-            pass
-
-        # If destination exists (file or dir), do not overwrite: print message and continue
-        if (dest_dir / name).exists():
-            print(f'Not moving {src} to {dest_dir} - file or directory exists')
-            continue
-
-        # perform move (with rsync for files when dest_dir exists)
-        safe_move(src, dest_dir)
-
-p = argparse.ArgumentParser(description='Organize files in the current directory into #, a..z folders.')
-p.add_argument('target', nargs='?', default='.', help='Target directory (default: current directory).')
-args = p.parse_args()
-
-target = Path(args.target).expanduser()
-organize(target)
-";
-  python -c "$process" $*
 }
 
 files.ren () 
