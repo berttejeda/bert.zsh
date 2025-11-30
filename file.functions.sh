@@ -24,6 +24,8 @@ alias .....="cd ../../../.."
 # file functions
 alias rm="rm.safe ${@}"
 
+workspace_folder="$HOME/Documents/workspace"
+
 if [[ $os_is_windows ]];then
   open(){
     explorer //e, ".\\${1////\\}"
@@ -57,41 +59,48 @@ function cd.workspace(){cd ~/Documents/workspace}
 #   method=.${directory##*/}
 # done
 # cd,ls
-find ~/Documents/workspace -maxdepth 1 -type d | while read directory;do 
-  method=.${directory##*/};
-  if ! [[ ${method} =~ "\.$" ]];then 
-    eval """function cd${method}(){ cd ${directory}/\${1}\${2}; }"""
-    eval """function ls${method}(){ ls ${directory}/\${1}; }"""
-    eval """function ls${method}.grep(){ ls ${directory} | grep \${1}; }"""
-    tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
-    done | tr '\n' ' ')
-    complete -W "${tab_completion_options}" cd${method} 
-    complete -W "${tab_completion_options}" ls${method} 
-  fi
-done
+if [[ -d "${workspace_folder}" ]];then
+  find ${workspace_folder} -maxdepth 1 -type d | while read directory;do 
+    method=.${directory##*/};
+    if ! [[ ${method} =~ "\.$" ]];then 
+      eval """function cd${method}(){ cd ${directory}/\${1}\${2}; }"""
+      eval """function ls${method}(){ ls ${directory}/\${1}; }"""
+      eval """function ls${method}.grep(){ ls ${directory} | grep \${1}; }"""
+      tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
+      done | tr '\n' ' ')
+      complete -W "${tab_completion_options}" cd${method} 
+      complete -W "${tab_completion_options}" ls${method} 
+    fi
+  done
+fi
 #
 # Git directories
 #
-find ~/git -maxdepth 1 -type d | while read directory;do
-  namespace="cd.git";method=.${directory##*/};
-  if ! [[ ${method} =~ "\.$" ]];then 
-    eval """function ${namespace}${method}(){ cd ${directory}/\${1}; }"""
-    tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
-    done | tr '\n' ' ')
-    complete -W "${tab_completion_options}" ${namespace}${method} 
-  fi
-done
+
+if [[ -d "${HOME}/git" ]];then
+  find "${HOME}/git" -maxdepth 1 -type d | while read directory;do
+    namespace="cd.git";method=.${directory##*/};
+    if ! [[ ${method} =~ "\.$" ]];then 
+      eval """function ${namespace}${method}(){ cd ${directory}/\${1}; }"""
+      tab_completion_options=$(find ${directory} -maxdepth 1 -type d | tail -n +2 | while read _directory;do echo "'${_directory##*/}'"
+      done | tr '\n' ' ')
+      complete -W "${tab_completion_options}" ${namespace}${method} 
+    fi
+  done
+fi
 #
 # Markdown files
 #
-find ~/Documents/workspace/md -maxdepth 2 -type f -iname '*.md' | while read md;do
-  namespace="edit";method=.${md##*/};
-  if ! [[ ${method} =~ "\.$" ]];then 
-    if ! eval "function ${namespace}${method}(){ ${EDITOR_COMMAND} ${md} \${1}; }";then 
-      echo "Failed to create an edit function for ${method}"
+if [[ -d "${workspace_folder}" ]];then
+  find ~/Documents/workspace/md -maxdepth 2 -type f -iname '*.md' | while read md;do
+    namespace="edit";method=.${md##*/};
+    if ! [[ ${method} =~ "\.$" ]];then 
+      if ! eval "function ${namespace}${method}(){ ${EDITOR_COMMAND} ${md} \${1}; }";then 
+        echo "Failed to create an edit function for ${method}"
+      fi
     fi
-  fi
-done
+  done
+fi
 
 biggest(){ du -ha --max-depth=1 . | sort -n -r | egrep -v '[0-9]+K'; }
 disk.unmount () { sudo diskutil unmountDisk $1 ;}
@@ -234,8 +243,7 @@ files.organize.a_z(){
 files.to.workspace() {
   if [[ "$1" =~ ".*--help.*" ]];then
     echo "Usage: ${FUNCNAME[0]} --destination [/some/path] [--dry]";return 1
-  fi  
-  workspace_folder="$HOME/Documents/workspace"
+  fi    
   while (( $# )); do
       if [[ "$1" =~ ".*--destination.*" ]]; then local workspace_folder=$2;fi    
       if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
