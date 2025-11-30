@@ -241,18 +241,19 @@ files.to.workspace() {
       if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
       shift
   done  
-  if ! [ -d $workspace_folder ]; then
+  if [[ -d $workspace_folder ]]; then
+    find ./ -maxdepth 1 -type f \( ! -iname ".*" \) | while read f;do 
+      workspace="${workspace_folder}/${f##*.}"
+      if ! [[ -d "${workspace}" ]];then 
+        echo "${workspace} does not exist, creating ${workspace}"
+        $PREFIX mkdir $workspace
+      fi
+      echo "Moving ${f} to ${workspace}"
+      $PREFIX mv "${f}" $workspace
+    done
+  else
     echo "Could not find the workspace folder @ ${workspace_folder}!"
-  return 1; fi
-  find ./ -maxdepth 1 -type f \( ! -iname ".*" \) | while read f;do 
-    workspace="${workspace_folder}/${f##*.}"
-    if ! [[ -d "${workspace}" ]];then 
-      echo "${workspace} does not exist, creating ${workspace}"
-      $PREFIX mkdir $workspace
-    fi
-    echo "Moving ${f} to ${workspace}"
-    $PREFIX mv "${f}" $workspace
-  done
+  fi
 }
 
 files.ren () 
