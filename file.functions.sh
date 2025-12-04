@@ -691,3 +691,11 @@ rsync.noperms(){
 rsync.noperms.bg(){
   screen -dm rsync -Pavr --no-perms --no-owner --no-group "${1}" "${2}"
 }
+
+rsync.noperms.move(){
+  rsync -Pavr --no-perms --remove-source-files --no-owner --no-group "${1}" "${2}"
+}
+
+rsync.noperms.move.bg(){
+  screen -dm rsync -Pavr --remove-source-files --no-perms --no-owner --no-group "${1}" "${2}"
+}
