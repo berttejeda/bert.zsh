@@ -360,3 +360,43 @@ for media_file in media_files:
 "
   python -c "$process" $@
 }
+
+movies.organize() {
+  if [[ "$1" =~ ".*--help.*" ]];then
+    echo "Usage: ${FUNCNAME[0]} --destination [/some/path] [--dry]";return 1
+  fi  
+  while (( $# )); do
+      if [[ "$1" =~ ".*--destination.*" ]]; then local destination_folder=$2;fi    
+      if [[ "$1" =~ ".*--dry.*" ]]; then local PREFIX="echo";fi
+      shift
+  done
+  if [ -z $destination_folder ]; then 
+    echo "No destination folder specified!"
+    return 1;
+  fi
+
+  if ! [ -d $destination_folder ]; then
+    echo "Could not find the destination folder at ${destination_folder}!"
+  return 1; fi
+
+  find ./ -maxdepth 1 -type d \( ! -iname ".*" \) | while read movie_dir;do 
+    if [[ "${movie_dir}" =~ "./$|../$" ]];then 
+      continue
+    fi 
+    movie_dir_sans_the=${movie_dir/The /}
+    ___dir=${movie_dir_sans_the##*/}
+    __dir=${___dir:0:1}
+    _dir=${__dir:l}
+    new_movie_dir="${destination_folder}/${_dir}"
+    if ! [[ -d "${new_movie_dir}" ]];then 
+      echo "${new_movie_dir} does not exist, creating ${new_movie_dir}"
+      $PREFIX mkdir "${new_movie_dir}"
+    fi
+    echo "Moving ${movie_dir} to ${new_movie_dir}"
+    if $PREFIX rsync -Pavr "${movie_dir}" $new_movie_dir;then
+      echo "Removing ${movie_dir} ..."
+      $PREFIX rm -rf ${movie_dir}
+    fi
+  done
+}
+
