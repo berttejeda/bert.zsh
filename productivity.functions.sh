@@ -104,6 +104,8 @@ print (dictionary.translate(word,language))"
 
 function current.tasks.start(){
 
+  unset CURRENT_CONTEXT_FILE
+  
   if [[ -z $CURRENT_CONTEXT ]];then
     echo "Must set CURRENT_CONTEXT variable!"
     return
@@ -112,13 +114,18 @@ function current.tasks.start(){
   CURRENT_CONTEXT_DIR_DEFAULT="${HOME}/Documents/workspace/${CURRENT_CONTEXT}/current"
   CURRENT_CONTEXT_DIR="${CURRENT_CONTEXT_DIR-${CURRENT_CONTEXT_DIR_DEFAULT}}"
   CURRENT_CONTEXT_FILENAME_DEFAULT="current.md"
-  CURRENT_CONTEXT_FILENAME="${CURRENT_CONTEXT_FILE-${CURRENT_CONTEXT_FILE_DEFAULT}}"
+  CURRENT_CONTEXT_FILENAME="${CURRENT_CONTEXT_FILE-${CURRENT_CONTEXT_FILENAME_DEFAULT}}"
   CURRENT_CONTEXT_FILE="${CURRENT_CONTEXT_DIR}/${CURRENT_CONTEXT_FILENAME}"
   CURRENT_CONTEXT_PORT=${CURRENT_CONTEXT_PORT-9080}
 
   if [[ ! -d $CURRENT_CONTEXT_DIR ]];then
     echo "Creating Current Context Directory ${CURRENT_CONTEXT_DIR}"
-    mkdir -p "${CURRENT_CONTEXT_DIR}"
+    if mkdir -p "${CURRENT_CONTEXT_DIR}";then
+      touch ${CURRENT_CONTEXT_FILE}
+    else
+      echo "Failed to create current context directory: ${CURRENT_CONTEXT_DIR}"
+      return
+    fi
   fi
   
   if ! (screen -ls | grep -i current_tasks) 2>&1 > /dev/null;then
