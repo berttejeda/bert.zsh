@@ -28,56 +28,26 @@ if [ -f ".dir-exec.sh" ]; then
 fi
 }
 
-# Text formatting
-text.format(){
-
-  if [[ ($# -lt 1) ]]; then 
-    echo "Usage: ${FUNCNAME[0]} <bold, underline, green, blue, etc> <text>"
-    return 0
-  fi  
-  PREFIX=""
-  local color=$1 
-  local string=$2
-  declare -A colors=( 
-    ["bold"]="bold" 
-    ["underline"]="smul"
-    ["none"]="sgr0"
-    ["red"]="setaf 1"
-    ["green"]="setaf 2"
-    ["yellow"]="setaf 3"
-    ["blue"]="setaf 4"
-    ["magenta"]="setaf 5"
-    ["cyan"]="setaf 6"
-    ["white"]="setaf 7"
-    ["bg_red"]="setaf 1"
-    ["bg_green"]="setaf 2"
-    ["bg_yellow"]="setaf 3"
-    ["bg_blue"]="setaf 4"
-    ["bg_magenta"]="setaf 5"
-    ["bg_cyan"]="setaf 6"
-    ["bg_white"]="setaf 7"
-    )
-  eval tput "${colors[$color]}"
-}
-
 a() { alias $1=cd\ $PWD; }
 
 topuniq(){ sort|uniq -c|sort "${@:--rn}"; }
-
-# red=$(text.format red)
-# yellow=$(text.format yellow)
-# blue=$(text.format blue)
 
 if [ -t 1 ] ; then
   red='\033[0;31m'
   green='\033[0;32m'
   blue='\033[0;34m'
+  black='\033[0;30m'
+  yellow='\033[0;33m'  
   reset='\033[0m' # reset to no color
+  nc='\033[0m' # reset to no color
 else
   red=''
   green=''
   blue=''
+  yellow=''
+  black=''
   reset=''
+  nc=''
 fi
 
 function confirm() {
