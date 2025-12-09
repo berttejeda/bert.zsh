@@ -1,7 +1,6 @@
 # Recursively find the largest file in a directory
 alias find-largest="find . -type f -print0 | xargs -0 du -s | sort -n | tail -150 | cut -f2 | xargs -I{} du -sh {}"
 alias treesize="ncdu -x"
-tree.show(){ find $1 -type d -print 2>/dev/null|awk '!/\.$/ {for (i=1;i<NF;i++){d=length($i);if ( d < 5  && i != 1 )d=5;printf("%"d"s","|")}print "---"$NF}'  FS='/'; }
 alias cd..='cd ../'                         # Go back 1 directory level (for fast typers)
 alias ..='cd ../'                           # Go back 1 directory level
 alias ...='cd ../../'                       # Go back 2 directory levels
@@ -327,10 +326,13 @@ ls.grep () {
   fi
 }
 
-function files.tree() {
-  
-  find $1 ! -path './.git/*' -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
-
+tree.show() {
+  unset exclude_args
+  EXCLUDE_DIRS=("*/node_modules/*" "*/.git/*" "*/venv/*" "*/dist/*")
+  for exclude_pattern in "${EXCLUDE_DIRS[@]}"; do
+      exclude_args+=(-not -path "$exclude_pattern")
+  done
+  find ${1-.} -maxdepth ${2-1} "${exclude_args[@]}" -print 2>/dev/null | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 }
 
 mount.smb(){
