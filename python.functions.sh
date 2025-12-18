@@ -130,7 +130,7 @@ conda.env.activate(){
         python_scripts_path_as_posix=$(cygpath -u $python_scripts_path)
         export PATH="${python_path_as_posix}:${python_scripts_path_as_posix}:${PATH}"
     elif [[ ($os_is_osx) || ($os_is_linux) ]];then
-        source activate $environment
+        conda activate $environment
     fi    
   fi
 }
