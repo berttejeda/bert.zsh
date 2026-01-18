@@ -122,12 +122,11 @@ os.sleep() {
 	shift
 	done	
 	echo "Computer is going to sleep!"
-	process='''
-	do shell script "/usr/bin/sudo -k;/usr/bin/sudo /usr/bin/pmset -a hibernatemode 1; /usr/bin/sudo -k" password "_password_" with administrator privileges
-	ignoring application responses
-	  tell application "Finder" to sleep
-	  do shell script "(/bin/sleep 15 && /usr/bin/sudo -k && /usr/bin/sudo /usr/bin/pmset -a hibernatemode 3 && /usr/bin/sudo -k) &> /dev/null &" password "_password_" with administrator privileges
-	end ignoring
-	'''
-	echo "${process}" | osascript - $*
+	if [[ $os_is_osx == "true" ]];then
+		sudo pmset sleepnow
+	elif [[ $os_is_windows == "true" ]];then
+		shutdown.exe //h
+	elif [[ $os_is_linux == "true" ]];then
+		sudo systemctl suspend
+	fi
 }
