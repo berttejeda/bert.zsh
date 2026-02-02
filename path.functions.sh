@@ -22,9 +22,15 @@ else
 	py_ScriptsPath="$(${py_BINARY} -m site --user-base)/Scripts"
 fi
 
+
+if [[ -d $GOPATH ]];then
+GOPATHBIN=$GOPATH/bin
+fi
+
 PATHS="""
 /go/bin
-$GOPATH/bin
+/opt/homebrew/bin
+${GOPATHBIN}
 /usr/local/go/bin
 $HOME/.goenv/shims
 $HOME/.goenv/bin
@@ -54,8 +60,6 @@ $HOME/google-cloud-sdk/bin
 /usr/local/opt/sqlite/bin
 /c/ProgramData/Anaconda3/envs/py3
 /c/ProgramData/Anaconda3/Scripts
-/opt/homebrew/bin
-${PATH}
 /c/tools/ruby24/bin
 /c/Progra~1/nodejs
 /c/Progra~1/Oracle/VirtualBox
@@ -82,6 +86,7 @@ ${KREW_ROOT:-$HOME/.krew}/bin
 ${HOME}/.bun/bin
 /c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin
 /c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin/Roslyn
+${PATH}
 """
 exclusions="/c/Program Files/Git/bin/git"
 NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | sort -u | egrep --text '^/' | tr '\n' ':')
