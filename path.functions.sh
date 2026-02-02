@@ -41,7 +41,6 @@ ${GOPATH}
 /c/Users/$USER/Appdata/Local/Programs/nvm
 $HOME/AppData/Local/Programs/nvm
 $HOME/AppData/Local/Programs/nvm/v16.5.0
-/c/tools/ruby24/bin
 ${HOME}/.conda/envs/py3
 ${HOME}/.conda/envs/py3/Scripts
 ${HOME}/Miniconda3/Scripts
@@ -55,7 +54,9 @@ $HOME/google-cloud-sdk/bin
 /usr/local/opt/sqlite/bin
 /c/ProgramData/Anaconda3/envs/py3
 /c/ProgramData/Anaconda3/Scripts
+/opt/homebrew/bin
 ${PATH}
+/c/tools/ruby24/bin
 /c/Progra~1/nodejs
 /c/Progra~1/Oracle/VirtualBox
 /c/aspell/bin
@@ -65,8 +66,6 @@ ${PATH}
 /c/HashiCorp/Vagrant/embedded/usr/bin
 /c/HashiCorp/Vagrant/bin
 ${HOME}/AppData/Roaming/npm
-/c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin
-/c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin/Roslyn
 ${HOME}/.cargo/bin
 ${HOME}/ProgramData/nvm
 ${HOME}/.local/bin
@@ -81,6 +80,8 @@ $HOME/.jenv/bin
 ${KREW_ROOT:-$HOME/.krew}/bin
 /opt/homebrew/opt/gawk/libexec/gnubin
 ${HOME}/.bun/bin
+/c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin
+/c/Progra~2/MIB055~1/2017/BuildTools/MSBuild/15.0/Bin/Roslyn
 """
 exclusions="/c/Program Files/Git/bin/git"
 NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | sort -u | egrep --text '^/' | tr '\n' ':')
