@@ -89,5 +89,5 @@ ${HOME}/.bun/bin
 ${PATH}
 """
 exclusions="/c/Program Files/Git/bin/git"
-NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | sort -u | egrep --text '^/' | tr '\n' ':')
+NEW_PATH=$(echo "${PATHS}" | tr ':' '\n' | egrep --text -v "${exclusions}" | egrep --text '^/' | tr '\n' ':')
 export PATH=/usr/local/bin:${NEW_PATH}
