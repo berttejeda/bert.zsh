@@ -200,6 +200,26 @@ print(json.dumps(yaml_content,${indent_arg}))"
   python -c "${process}"
 }
 
+yaml.sort () {
+    if [[ "$*" =~ ".*--help.*" ]] || [[ -z "$1" ]]; then
+        echo -e "usage: ${FUNCNAME[0]} [path/to/file.yaml]"
+        return 1
+    fi
+
+    local process="import yaml; import os; import sys;
+filepath = os.path.expanduser('${1}')
+try:
+    with open(filepath, 'r') as f:
+        data = yaml.safe_load(f)
+    with open(filepath, 'w') as f:
+        yaml.dump(data, f, sort_keys=True, indent=2, default_flow_style=False)
+    print(f'Successfully sorted keys in {filepath}')
+except Exception as e:
+    print(f'Error: {e}'); sys.exit(1)"
+
+    python3 -c "${process}"
+}
+
 go.init() {
   # TODO
   # Update this to work with more modern versions of go
