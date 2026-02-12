@@ -116,6 +116,7 @@ function current.tasks.start(){
   CURRENT_CONTEXT_FILENAME_DEFAULT="current.md"
   CURRENT_CONTEXT_FILENAME="${CURRENT_CONTEXT_FILE-${CURRENT_CONTEXT_FILENAME_DEFAULT}}"
   CURRENT_CONTEXT_FILE="${CURRENT_CONTEXT_DIR}/${CURRENT_CONTEXT_FILENAME}"
+  CURRENT_CONTEXT_LOG_FILE="${CURRENT_CONTEXT_DIR}/${CURRENT_CONTEXT_FILENAME//.md/}.log"
   CURRENT_CONTEXT_PORT=${CURRENT_CONTEXT_PORT-9080}
 
   if [[ ! -d $CURRENT_CONTEXT_DIR ]];then
@@ -130,11 +131,20 @@ function current.tasks.start(){
   
   if ! (screen -ls | grep -i current_tasks) 2>&1 > /dev/null;then
     echo "Initializing current tasks"
-    screen -S current_tasks -dm markmap -w ${CURRENT_CONTEXT_FILE} --port ${CURRENT_CONTEXT_PORT}
+    screen -dmS current_tasks bash -c "markmap -w ${CURRENT_CONTEXT_FILE} --port ${CURRENT_CONTEXT_PORT} 2>&1 | tee ${CURRENT_CONTEXT_LOG_FILE}"
     edit ${CURRENT_CONTEXT_FILE}
   else
     echo "Resuming current tasks"
-    open "http://localhost:${CURRENT_CONTEXT_PORT}/?key=10c4871&filename=current.md"
+    if [[ -f "${CURRENT_CONTEXT_LOG_FILE}" ]];then
+      echo "Found current tasks context log file at ${CURRENT_CONTEXT_LOG_FILE}"
+      if $(grep -q "http.*" "${CURRENT_CONTEXT_LOG_FILE}");then
+        open $(grep -o "http.*" "${CURRENT_CONTEXT_LOG_FILE}")
+      else
+        echo "Error: No listening port detected in current tasks context!"
+      fi
+    else
+        echo "Error: Could not find expected current tasks context file at ${CURRENT_CONTEXT_FILE}"
+    fi
     edit ${CURRENT_CONTEXT_FILE}
   fi  
 }
