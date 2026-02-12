@@ -146,5 +146,54 @@ function current.tasks.start(){
         echo "Error: Could not find expected current tasks context file at ${CURRENT_CONTEXT_FILE}"
     fi
     edit ${CURRENT_CONTEXT_FILE}
-  fi  
+  fi 
+}
+
+function current.tasks.archive(){
+
+  unset CURRENT_CONTEXT_FILE
+  
+  if [[ -z $CURRENT_CONTEXT ]];then
+    echo "Must set CURRENT_CONTEXT variable!"
+    return
+  fi
+
+  CURRENT_CONTEXT_DIR_DEFAULT="${HOME}/Documents/workspace/${CURRENT_CONTEXT}/current"
+  CURRENT_CONTEXT_DIR="${CURRENT_CONTEXT_DIR-${CURRENT_CONTEXT_DIR_DEFAULT}}"
+  CURRENT_CONTEXT_FILENAME_DEFAULT="current.md"
+  CURRENT_CONTEXT_FILENAME="${CURRENT_CONTEXT_FILE-${CURRENT_CONTEXT_FILENAME_DEFAULT}}"
+  CURRENT_CONTEXT_FILE="${CURRENT_CONTEXT_DIR}/${CURRENT_CONTEXT_FILENAME}"
+
+  if [[ ! -f "$CURRENT_CONTEXT_FILE" ]]; then
+     echo "Current working context file not found: $CURRENT_CONTEXT_FILE"
+     return
+  fi
+
+  ARCHIVE_DIR="${CURRENT_CONTEXT_DIR}/archived"
+  if [[ ! -d "$ARCHIVE_DIR" ]]; then
+    mkdir -p "$ARCHIVE_DIR"
+  else
+    echo "Archive directory already exists: $ARCHIVE_DIR"
+  fi
+
+  TIMESTAMP=$(date +%Y%m%d%H%M%S)
+  ARCHIVE_FILE="${ARCHIVE_DIR}/${TIMESTAMP}.current.md"
+
+  cp "$CURRENT_CONTEXT_FILE" "$ARCHIVE_FILE"
+  echo "Archived current tasks to ${ARCHIVE_FILE}"
+
+  cat <<EOF > "$CURRENT_CONTEXT_FILE"
+---
+title: Current Tasks
+markmap:
+  colorFreezeLevel: 2
+---
+
+## Current Tasks
+
+## Pending
+
+- Worklog
+EOF
+  echo "Reset current tasks context file."
 }
