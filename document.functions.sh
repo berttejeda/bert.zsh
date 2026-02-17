@@ -95,6 +95,41 @@ for l in data:
     echo $* | python -c "$process"
 }
 
+excel.search () {
+    if [[ "$*" =~ ".*--help.*" ]] || [[ $# -lt 2 ]]; then
+        echo -e "usage: ${FUNCNAME[0]} [path/to/file.xlsx] [search_term] [optional_column_name]"
+        return 1
+    fi
+
+    local file_path="${1}"
+    local term="${2}"
+    local col="${3:-None}"
+
+    local process="import pandas as pd; import os; import sys;
+filepath = os.path.expanduser('${file_path}')
+term = '${term}'
+column = '${col}' if '${col}' != 'None' else None
+
+try:
+    df = pd.read_excel(filepath)
+    if column:
+        if column in df.columns:
+            results = df[df[column].astype(str).str.contains(term, case=False, na=False, regex=True)]
+        else:
+            print(f'Error: Column \"{column}\" not found.'); sys.exit(1)
+    else:
+        results = df[df.apply(lambda row: row.astype(str).str.contains(term, case=False, na=False).any(), axis=1)]
+
+    if not results.empty:
+        print(results.to_markdown(index=False))
+    else:
+        print('No results found.')
+except Exception as e:
+    print(f'Error: {e}'); sys.exit(1)"
+
+    python3 -c "${process}"
+}
+
 xmind.convert(){
   [ $# -lt 1 ] && echo "Usage: ${FUNCNAME[0]} [/path/to/xmind_document] >" >&2 && return 1
   ruby "${XMorgPath}" -t markdown -o "${1}.md" "${1}" --pandoc-options="--atx-headers"
