@@ -133,8 +133,13 @@ bw.unlock(){
     set -- "$@" "$arg"
   done
 
-  BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE})
-  export BW_SESSION=$(bw unlock $BW_PASSWORD --raw)
+  if [[ $PREFIX == "echo" ]];then
+  	$PREFIX "BW_PASSWORD=\$(cat ${BITWARDEN_PASSWORD_FILE})"
+  	$PREFIX "export BW_SESSION=\$(bw unlock $BW_PASSWORD --raw)"
+  else
+  	BW_PASSWORD=$(cat ${BITWARDEN_PASSWORD_FILE})
+  	$PREFIX export BW_SESSION=$(bw unlock $BW_PASSWORD --raw)
+  fi
 }
 
 
