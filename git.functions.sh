@@ -399,6 +399,69 @@ git.clean() {
   echo "Done!"
 }
 
+git.cherry-pick.selective() {
+    local OPTIND=1
+    local dry_run=false
+
+    while getopts "n" opt; do
+        case "$opt" in
+            n) dry_run=true ;;
+            *) echo "Usage: git-selective-pick [-n] <source-branch> <start-point> [exclude-pattern]"; return 1 ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    local source_branch="$1"
+    local start_point="$2"
+    local exclude_pattern="$3"
+
+    if [[ -z "$source_branch" || -z "$start_point" ]]; then
+        echo "Usage: git-selective-pick [-n] <source-branch> <start-point> [exclude-pattern]"
+        return 1
+    fi
+
+    # 1. Get the list of commits
+    local commit_list
+    commit_list=$(git rev-list "${start_point}..${source_branch}" --reverse --oneline | \
+        if [[ -n "$exclude_pattern" ]]; then
+            grep -vEi "$exclude_pattern"
+        else
+            cat
+        fi)
+
+    if [[ -z "$commit_list" ]]; then
+        echo "No commits found matching those criteria."
+        return 0
+    fi
+
+    echo "------------------------------------------"
+    if [ "$dry_run" = true ]; then
+        echo "DRY RUN MODE: The following would be picked:"
+    else
+        echo "Commencing cherry-pick for:"
+    fi
+    echo "------------------------------------------"
+    echo "$commit_list"
+    echo "------------------------------------------"
+
+    if [ "$dry_run" = true ]; then
+        echo "Dry run complete. No changes made."
+        return 0
+    fi
+
+    # 2. Extract hashes
+    local hashes
+    hashes=$(echo "$commit_list" | awk '{print $1}')
+
+    # 3. Handle Word Splitting for both shells
+    # Bash splits on spaces by default; Zsh requires explicit expansion.
+    if [ -n "$ZSH_VERSION" ]; then
+        git cherry-pick ${=hashes}
+    else
+        git cherry-pick $hashes
+    fi
+}
+
 #--------------------------------------------------------------------------------------------------#
 # Git shortcuts
 alias git.undocommit='git reset --soft HEAD^'
