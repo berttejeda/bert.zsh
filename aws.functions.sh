@@ -172,7 +172,7 @@ function aws.ec2.clone {
   echo -e "\t\Instance is up and ready"
 }
 
-function aws.ec2.change-instance-role {
+function aws.ec2.instance_role.change {
 
   myInstanceID=${1:?"Must specify instanceID!"}
   targetRole=${2:?"Must specify Target Role!"}
@@ -194,4 +194,71 @@ function aws.ec2.change-instance-role {
   --instance-id $myInstanceID \
   --iam-instance-profile Name=${currentEC2InstanceProfileName}
 
+}
+
+function aws.iam.instance_profile.delete {
+
+  argscount=$#
+  allargs=${@}
+
+  USAGE="""
+  ${FUNCNAME[0]}
+    -p <profile_name>
+    --delete-attached-roles (Optional: Deletes the IAM roles themselves)
+    --help
+  """
+
+  # Reset variables to ensure clean runs in the same shell session
+  local profile_name=""
+  local delete_roles=false
+  local help=""
+
+  while (( $# )); do
+      if [[ "$1" == "-p" ]]; then profile_name=$2; fi    
+      if [[ "$1" == "--delete-attached-roles" ]]; then delete_roles=true; fi    
+      if [[ "$1" == "--help" ]]; then help=true; fi    
+      shift
+  done
+
+  if [[ (-n $help) || ($argscount -lt 1) ]]; then
+    echo -e "${USAGE}"
+    return
+  fi
+
+  # Validate input
+  if [[ -z "$profile_name" ]]; then
+    echo "Error: Profile name (-p) is required."
+    return 1
+  fi
+
+  echo "Fetching roles attached to instance profile: $profile_name"
+  
+  # Get role names associated with the profile
+  local attached_roles=$(aws iam get-instance-profile --instance-profile-name "$profile_name" --query 'InstanceProfile.Roles[*].RoleName' --output text 2>/dev/null)
+
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Instance profile '$profile_name' not found."
+    return 1
+  fi
+
+  # 1. Detach roles (Mandatory to delete the profile)
+  for role in $attached_roles; do
+    echo -e "\tDetaching role: $role"
+    aws iam remove-role-from-instance-profile --instance-profile-name "$profile_name" --role-name "$role"
+  done
+
+  # 2. Delete the Instance Profile
+  echo -e "\tDeleting instance profile: $profile_name"
+  aws iam delete-instance-profile --instance-profile-name "$profile_name"
+
+  # 3. Optional: Delete the actual IAM Roles
+  if [[ "$delete_roles" == true ]]; then
+    for role in $attached_roles; do
+      echo -e "\tDeleting IAM Role: $role"
+      # Note: This will fail if the role still has attached policies (inline or managed)
+      aws iam delete-role --role-name "$role" 2>/dev/null || echo -e "\t\tCould not delete $role (it may still have attached policies)."
+    done
+  fi
+
+  echo "Operation complete."
 }
