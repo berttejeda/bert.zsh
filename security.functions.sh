@@ -615,3 +615,104 @@ ssh_verify_keys() {
 
 }
 
+
+
+
+function ssl.letsencrypt.cert.create() {
+
+  local process
+  process=$(cat << 'EOF'
+import argparse
+import subprocess
+import sys
+import shutil
+import os
+
+epilog = """
+Notes for Cloudflare DNS-01:
+  1. Install plugin: pip install certbot-dns-cloudflare
+  2. Create credentials file (e.g., ~/.secrets/cloudflare.ini):
+     dns_cloudflare_api_token = <YOUR_TOKEN>
+  3. Use: ssl.letsencrypt.cert.create --fqdn example.com --email user@me.com --dns-provider cloudflare --dns-credentials ~/.secrets/cloudflare.ini
+"""
+parser = argparse.ArgumentParser(
+    description="Create Let's Encrypt certificates using Certbot.",
+    epilog=epilog,
+    formatter_class=argparse.RawDescriptionHelpFormatter
+)
+parser.add_argument("--fqdn", "-f", required=True, help="The domain name (FQDN) for which to request the certificate.")
+parser.add_argument("--email", "-e", required=True, help="Email address for important account notifications.")
+parser.add_argument("--aliases", "-a", help="Comma-separated list of additional domain names (aliases) to include.")
+parser.add_argument("--dns-provider", "-p", help="The DNS provider for DNS-01 challenge (e.g., cloudflare).")
+parser.add_argument("--dns-credentials", "-c", help="Path to the DNS provider credentials file.")
+parser.add_argument("--staging", "-s", action="store_true", help="Use the Let's Encrypt staging environment.")
+parser.add_argument("--dry-run", "-d", action="store_true", help="Perform a test run of the certificate request without creating one.")
+parser.add_argument("--sudo", action="store_true", help="Run certbot with sudo privileges.")
+parser.add_argument("--config-dir", help="Path to the Certbot configuration directory.")
+parser.add_argument("--work-dir", help="Path to the Certbot working directory.")
+parser.add_argument("--logs-dir", help="Path to the Certbot logs directory.")
+
+args = parser.parse_args()
+
+certbot_path = shutil.which("certbot")
+if not certbot_path:
+    print("Error: certbot not found in PATH. Please install it first.")
+    sys.exit(1)
+
+cmd = [certbot_path, "certonly", "--non-interactive", "--agree-tos", "-m", args.email, "-d", args.fqdn]
+
+if args.sudo:
+    cmd.insert(0, "sudo")
+
+if args.aliases:
+    for alias in args.aliases.split(","):
+        if alias.strip():
+            cmd.extend(["-d", alias.strip()])
+
+if args.dns_provider:
+    cmd.extend(["--dns-" + args.dns_provider])
+    if args.dns_credentials:
+        creds_path = os.path.expanduser(args.dns_credentials)
+        if os.path.exists(creds_path):
+            cmd.extend(["--dns-" + args.dns_provider + "-credentials", creds_path])
+            # Attempt to set permissions, but ignore errors if not permitted (e.g. not owner)
+            try:
+                os.chmod(creds_path, 0o600)
+            except OSError:
+                pass
+        else:
+            print(f"Warning: Credentials file not found at {creds_path}")
+else:
+    cmd.append("--standalone")
+
+if args.staging:
+    cmd.append("--staging")
+
+if args.dry_run:
+    cmd.append("--dry-run")
+
+if args.config_dir:
+    cmd.extend(["--config-dir", os.path.expanduser(args.config_dir)])
+if args.work_dir:
+    cmd.extend(["--work-dir", os.path.expanduser(args.work_dir)])
+if args.logs_dir:
+    cmd.extend(["--logs-dir", os.path.expanduser(args.logs_dir)])
+
+print(f"Constructed command: {' '.join(cmd)}")
+
+try:
+    subprocess.run(cmd, check=True)
+    print("\nSuccessfully processed Let's Encrypt certificate request!")
+except subprocess.CalledProcessError as e:
+    print(f"\nCertbot failed with exit code: {e.returncode}")
+    sys.exit(e.returncode)
+except Exception as e:
+    print(f"\nAn unexpected error occurred: {e}")
+    sys.exit(1)
+EOF
+)
+
+  python3 -c "$process" "$@"
+}
+
+
