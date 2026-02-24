@@ -60,6 +60,7 @@ $HOME/google-cloud-sdk/bin
 /usr/local/opt/sqlite/bin
 /c/ProgramData/Anaconda3/envs/py3
 /c/ProgramData/Anaconda3/Scripts
+${HOME}/anaconda3/bin
 /c/tools/ruby24/bin
 /c/Progra~1/nodejs
 /c/Progra~1/Oracle/VirtualBox
