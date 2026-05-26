@@ -135,6 +135,26 @@ xmind.convert(){
   ruby "${XMorgPath}" -t markdown -o "${1}.md" "${1}" --pandoc-options="--atx-headers"
 }
 
+image.to.markdown() {
+  if [ $# -lt 1 ]; then echo "Usage: ${FUNCNAME[0]} <image_file> [width] [height]"; return 1; fi
+  local width="${2:-50%}" height="${3:-50%}"
+  process="import base64;import sys;file=sys.stdin.readlines()[0].replace('\n','');
+image=open(file,'rb');image_read=image.read();image.close()
+image_64=base64.encodebytes(image_read) if sys.version_info>=(3,9) else base64.encodestring(image_read)
+image_string=image_64.decode('utf-8').replace('\n','')
+w='${width}';h='${height}'
+if w and h:
+    print('<img src=\"data:image/png;base64,'+image_string+'\" width=\"'+w+'\" height=\"'+h+'\" />')
+elif w:
+    print('<img src=\"data:image/png;base64,'+image_string+'\" width=\"'+w+'\" />')
+elif h:
+    print('<img src=\"data:image/png;base64,'+image_string+'\" height=\"'+h+'\" />')
+else:
+    print('![image](data:image/png;base64,'+image_string+')')
+"
+  echo $1 | python -c "$process"
+}
+
 xml.to.json() {
   if [ $# -lt 1 ]; then echo "Usage: ${FUNCNAME[0]} <file>"; return 1; fi
   process="import json;import sys;import xmltodict;file=line=sys.stdin.readlines()[0].replace('\n','');
