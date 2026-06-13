@@ -1,3 +1,3 @@
-alias sqlite='python -c "import apsw;apsw.main()"'
+alias python.sqlite='python -c "import apsw;apsw.main()"'
 
 # db
