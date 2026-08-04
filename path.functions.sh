@@ -71,8 +71,9 @@ ${HOME}/anaconda3/bin
 /c/HashiCorp/Vagrant/embedded/usr/bin
 /c/HashiCorp/Vagrant/bin
 ${HOME}/AppData/Roaming/npm
-${HOME}/.cargo/bin
+${HOME}/Library/pnpm/bin
 ${HOME}/ProgramData/nvm
+${HOME}/.cargo/bin
 ${HOME}/.local/bin
 ${HOME}/.githooks
 /c/Progra~1/Amazon/AWSCLIV2
