@@ -701,3 +701,7 @@ rsync.noperms.move(){
 rsync.noperms.move.bg(){
   screen -dm rsync -Pavr --remove-source-files --no-perms --no-owner --no-group "${1}" "${2}"
 }
+
+disk.root.free(){
+  df -h / | awk 'NR==2 {print "Free Space: " $4}'
+}
