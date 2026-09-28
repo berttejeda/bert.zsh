@@ -180,8 +180,6 @@ folder.merge(){
 
 file.reverse() { tail -r $1; }
 file.show () { open --reveal $1; }
-file.text.replace () { grep -l $1 $3 | while read file;do sed -i "s/$1/$2/g" $file;done; }
-file.line.delete () { sed -i ${2} -e "${1}d" ; } 
 find.newest () { find ./ -cmin -$1 ; }
 
 files.organize.a_z(){
@@ -704,4 +702,40 @@ rsync.noperms.move.bg(){
 
 disk.root.free(){
   df -h / | awk 'NR==2 {print "Free Space: " $4}'
+}
+
+lines.delete(){
+
+  numArgs=$#
+
+  USAGE="""
+  ${FUNCNAME[0]} - Delete lines matching a regex from a file (in place)
+    --file|-f <path/to/file>
+    --string|-s <regex>
+    --help
+  Example: ${FUNCNAME[0]} -f ~/.zsh_history -s 'imessage_export'
+  """
+
+  local FILE PATTERN help
+  while (( $# )); do
+      if [[ "$1" =~ "^--file$|^-f$" ]]; then FILE=$2;shift;fi
+      if [[ "$1" =~ "^--string$|^-s$" ]]; then PATTERN=$2;shift;fi
+      if [[ "$1" =~ "^--help$" ]]; then help=true;fi
+      shift
+  done
+
+  if [[ (-n $help) || ($numArgs -lt 1) || (-z $FILE) || (-z $PATTERN) ]];then
+    echo -e "${USAGE}"
+    return
+  fi
+
+  python3 - "${FILE}" "${PATTERN}" <<'PYEOF'
+import re, sys, pathlib as p
+f = p.Path(sys.argv[1]).expanduser()
+rx = re.compile(sys.argv[2].encode())
+lines = f.read_bytes().splitlines(True)
+kept = [l for l in lines if not rx.search(l)]
+f.write_bytes(b''.join(kept))
+print(f"Deleted {len(lines) - len(kept)} line(s) from {f}")
+PYEOF
 }
