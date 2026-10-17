@@ -6,6 +6,19 @@ if [[ ("$OSTYPE" =~ ".*darwin.*") && ($(type /usr/{,local/}{,s}bin/${BINARY} 2> 
   alias define="macdict-lookup"
 fi
 
+# Directory of this library, used to locate helper scripts
+BERT_ZSH_LANG_DIR="${${(%):-%x}:A:h}"
+
+spanish.define(){
+  # Thin wrapper; see scripts/spanish_define.py --help for all options
+  local script="${BERT_ZSH_LANG_DIR}/scripts/spanish_define.py"
+  if [[ ! -f "${script}" ]];then
+    echo "spanish.define: cannot find ${script}" >&2
+    return 1
+  fi
+  SPANISH_DEFINE_PROG="${0}" python3 "${script}" "$@"
+}
+
 # java
 java.run(){ javac "${1}.java" && java "${1%.**}"; }
 

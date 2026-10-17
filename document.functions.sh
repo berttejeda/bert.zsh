@@ -172,6 +172,121 @@ document.spell-check() {
   aspell check "${1}" ${backup-'--dont-backup'}
 }
 
+document.words.unique() {
+
+  local process
+  process=$(cat << 'EOF'
+import argparse
+import glob
+import os
+import re
+import shutil
+import subprocess
+import sys
+from collections import Counter
+
+parser = argparse.ArgumentParser(
+    prog="document.words.unique",
+    description="Create a list of unique words across one or more text or PDF files.\nPDFs are read with pypdf if installed, otherwise the pdftotext CLI.",
+    epilog="""examples:
+  document.words.unique notes.txt
+  document.words.unique docs/*.md README.md
+  document.words.unique 'docs/**/*.md'            # quoted: expanded recursively by python
+  document.words.unique docs -r '\\.(md|txt)$'     # walk a directory, keep paths matching regex
+  cat notes.txt | document.words.unique -""",
+    formatter_class=argparse.RawDescriptionHelpFormatter
+)
+parser.add_argument("paths", nargs="+", help="Files, directories, or glob patterns to read ('-' for stdin). Quote a pattern to let python expand it ('**' recurses).")
+parser.add_argument("--regex", "-r", help="Only read files whose path matches this regular expression.")
+parser.add_argument("--output", "-o", help="Path to write the word list to (default: stdout).")
+parser.add_argument("--case-sensitive", "-c", action="store_true", help="Treat words differing only in case as distinct.")
+parser.add_argument("--count", "-n", action="store_true", help="Prefix each word with its number of occurrences.")
+parser.add_argument("--by-frequency", "-f", action="store_true", help="Sort by occurrence count (descending) instead of alphabetically.")
+
+args = parser.parse_args()
+
+try:
+    path_filter = re.compile(args.regex) if args.regex else None
+except re.error as e:
+    print(f"Error: invalid regex: {e}", file=sys.stderr)
+    sys.exit(1)
+
+def expand(path):
+    if path == "-":
+        return [path]
+    path = os.path.expanduser(path)
+    if os.path.isdir(path):
+        return sorted(os.path.join(root, name) for root, _, names in os.walk(path) for name in names)
+    if glob.has_magic(path):
+        return sorted(p for p in glob.glob(path, recursive=True) if os.path.isfile(p))
+    return [path]
+
+files = []
+for path in args.paths:
+    matches = expand(path)
+    if not matches:
+        print(f"Warning: no files match {path}", file=sys.stderr)
+    for f in matches:
+        if path_filter and f != "-" and not path_filter.search(f):
+            continue
+        if f not in files:
+            files.append(f)
+
+if not files:
+    print("Error: no files to process", file=sys.stderr)
+    sys.exit(1)
+
+def read_pdf(path):
+    try:
+        from pypdf import PdfReader
+        return "\n".join(page.extract_text() or "" for page in PdfReader(path).pages)
+    except ImportError:
+        pass
+    pdftotext = shutil.which("pdftotext")
+    if pdftotext:
+        result = subprocess.run([pdftotext, "-q", path, "-"], capture_output=True, text=True)
+        if result.returncode != 0:
+            raise OSError(f"pdftotext failed on {path}")
+        return result.stdout
+    raise OSError(f"cannot read {path}: install pypdf (pip install pypdf) or pdftotext (brew install poppler)")
+
+texts = []
+for f in files:
+    try:
+        if f == "-":
+            texts.append(sys.stdin.read())
+        elif f.lower().endswith(".pdf"):
+            texts.append(read_pdf(f))
+        else:
+            with open(f, encoding="utf-8", errors="replace") as fh:
+                texts.append(fh.read())
+    except Exception as e:
+        print(f"Warning: {e}", file=sys.stderr)
+text = "\n".join(texts)
+
+words = re.findall(r"[^\W\d_]+(?:['-][^\W\d_]+)*", text)
+if not args.case_sensitive:
+    words = [w.lower() for w in words]
+
+counts = Counter(words)
+if args.by_frequency:
+    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+else:
+    ordered = sorted(counts.items())
+
+lines = [f"{n}\t{w}" if args.count else w for w, n in ordered]
+
+if args.output:
+    with open(args.output, "w", encoding="utf-8") as out:
+        out.write("\n".join(lines) + ("\n" if lines else ""))
+else:
+    print("\n".join(lines))
+EOF
+)
+
+  python3 -c "$process" "$@"
+}
+
 document.markdown2html(){
 
   # Display help if insufficient args

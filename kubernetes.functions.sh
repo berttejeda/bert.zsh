@@ -291,3 +291,62 @@ minikube.reset(){
 	minikube delete || true
 	minikube start --vm-driver ${1-"virtualbox"}
 }
+
+rke.orphans.kill (){
+
+  if [[ ($# -lt 1) || ("$*" =~ ".*--help.*") ]];then 
+    show_help $funcstack[1]
+    return
+  fi
+
+  local PREFIX=eval
+
+  for arg in "${@}";do
+    shift
+    if [[ "$arg" =~ '^--node$|^-n$|@FQDN or hostname of the Kubernetes node - required' ]]; then local node=$1;continue;fi
+    if [[ "$arg" =~ '^--ssh-user$|^-u$|@SSH user for the node' ]]; then local ssh_user=$1;continue;fi
+    if [[ "$arg" =~ '^--ssh-key$|^-k$|@Path to SSH private key' ]]; then local ssh_key=$1;continue;fi
+    if [[ "$arg" =~ '^--dry$|@Dry run, only echo commands' ]]; then local PREFIX=echo;continue;fi
+    set -- "$@" "$arg"
+  done
+
+  if [[ -z $node ]];then show_help $funcstack[1];return;fi
+
+  local ssh_user=${ssh_user-svcdevops}
+  local ssh_key=${ssh_key-~/.ssh/id_rsa.svcdevops}
+  local crictl_bin="/var/lib/rancher/rke2/bin/crictl"
+  local runtime_endpoint="unix:///run/k3s/containerd/containerd.sock"
+  local crictl_cmd="sudo ${crictl_bin} --runtime-endpoint ${runtime_endpoint}"
+  local node_short=${node%%.*}
+
+  echo "Scanning for orphaned pods on ${node} ..."
+
+  local orphans=$(comm -23 \
+    <(ssh -i ${ssh_key} ${ssh_user}@${node} \
+      ${crictl_cmd} pods -o json \
+      | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u) \
+    <(kubectl get pods --all-namespaces --field-selector spec.nodeName=${node_short} \
+      -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' | sort -u))
+
+  if [[ -z $orphans ]];then
+    echo "No orphaned pods found on ${node}"
+    return
+  fi
+
+  echo "Orphaned pods found on ${node}:"
+  echo "$orphans"
+  echo ""
+
+  for orphan in ${(f)orphans};do
+    local ns=${orphan%%/*}
+    local name=${orphan##*/}
+    local pod_id=$(ssh -i ${ssh_key} ${ssh_user}@${node} \
+      ${crictl_cmd} pods -o json \
+      | jq -r ".items[] | select(.metadata.namespace==\"${ns}\" and .metadata.name==\"${name}\") | .id")
+    if [[ -n $pod_id ]];then
+      echo "Stopping and removing pod ${orphan} (${pod_id})"
+      $PREFIX ssh -i ${ssh_key} ${ssh_user}@${node} \
+        "${crictl_cmd} stopp ${pod_id} && ${crictl_cmd} rmp ${pod_id}"
+    fi
+  done
+}

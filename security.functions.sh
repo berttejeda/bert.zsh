@@ -84,14 +84,21 @@ bw.copy_item(){
   
   echo "Retrieving target folder ID"
   if [[ $PREFIX == "echo" ]];then
-    echo TARGET_BITWARDEN_FOLDER_ID\=\$\(bw get folder \"${TARGET_BITWARDEN_FOLDER_NAME}\" \| jq -r '.id'\)
+    echo TARGET_BITWARDEN_FOLDER_ID\=\$\(bw list folders --search \"${TARGET_BITWARDEN_FOLDER_NAME}\" \| jq -r '.[0].id'\)
     # echo TARGET_BITWARDEN_FOLDER_ID\=\$\(bw get folder \"${TARGET_BITWARDEN_FOLDER_NAME}\" \2\>\&1 \| tail -n +2 \| head -n +1\)
   else
-    if ! $(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 >/dev/null);then
-      TARGET_BITWARDEN_FOLDER_ID=$(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 | tail -n +2 | head -n +1)
+    if ! $(bw list folders --search "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 >/dev/null);then
+      TARGET_BITWARDEN_FOLDER_ID=$(bw list folders --search "${TARGET_BITWARDEN_FOLDER_NAME}" 2>&1 | tail -n +2 | head -n +1)
     else
-      TARGET_BITWARDEN_FOLDER_ID=$(bw get folder "${TARGET_BITWARDEN_FOLDER_NAME}" | jq -r '.id')
+      TARGET_BITWARDEN_FOLDER_ID=$(bw list folders --search "${TARGET_BITWARDEN_FOLDER_NAME}" | jq -r '.[0].id')
     fi
+  fi
+
+  if [[ -z $TARGET_BITWARDEN_FOLDER_ID ]];then
+    echo "Error: Could not find target folder ID for folder name: $TARGET_BITWARDEN_FOLDER_NAME"
+    return 1
+  else
+    echo "Target folder ID: $TARGET_BITWARDEN_FOLDER_ID"
   fi
 
   if [[ $PREFIX == "echo" ]];then

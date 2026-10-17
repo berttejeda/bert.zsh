@@ -208,6 +208,19 @@ movies.organize() {
   done
 }
 
+# Directory of this library, used to locate helper scripts
+BERT_ZSH_MEDIA_DIR="${${(%):-%x}:A:h}"
+
+pictures.organize(){
+  # Thin wrapper; see scripts/organize_pictures.py --help for all options
+  local script="${BERT_ZSH_MEDIA_DIR}/scripts/organize_pictures.py"
+  if [[ ! -f "${script}" ]];then
+    echo "pictures.organize: cannot find ${script}" >&2
+    return 1
+  fi
+  ORGANIZE_PICTURES_PROG="${0}" python3 "${script}" "$@"
+}
+
 media.oganize.by_date() {
 
   process="import argparse;
