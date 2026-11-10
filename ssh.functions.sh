@@ -1,3 +1,5 @@
+alias ssh.config.hosts="awk '/^[[:space:]]*[Hh]ost[[:space:]]/ { for (i=2; i<=NF; i++) print $i }' ~/.ssh/config"
+
 ssh.get.remote.file(){
 	usage="""Usage: ${FUNCNAME[0]} <hostname> </path/to/file"""
 	if [[ (! $@) || ("$*" =~ ".*--help.*") ]];then echo -e "${usage}";return 0;fi
@@ -7,3 +9,4 @@ ssh.get.remote.file(){
 	local_file=${3-$remote_file_name}
 	ssh "${host}" "sudo cat ${remote_file}" > $local_file
 }
+
